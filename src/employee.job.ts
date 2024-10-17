@@ -14,7 +14,10 @@ function transformEmployeeData(employees: any[]) {
       Nama: employee.full_name.trim(),
       Jabatan: employee.job_position,
       Departemen: employee.organization_name,
-      IDAtasan: reportTo.employee_id,
+      IDAtasan:
+        reportTo.employee_id == employee.employee_id
+          ? '-'
+          : reportTo.employee_id,
     }
   })
 }

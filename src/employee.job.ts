@@ -41,7 +41,10 @@ export async function generateEmployeeChart() {
     try {
       await fs.rmdir(tempDir, { recursive: true })
     } catch (cleanupError) {
-      logger.error('Error during cleanup of temporary directory: ', cleanupError)
+      logger.error(
+        'Error during cleanup of temporary directory: ',
+        cleanupError,
+      )
     }
   }
 }

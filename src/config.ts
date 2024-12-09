@@ -11,6 +11,18 @@ export const NUSAWORK_AUTH_TOKEN_API_KEY =
 export const NUSAWORK_EMPLOYEE_API_URL =
   process.env.NUSAWORK_EMPLOYEE_API_URL ||
   'https://nusawork.com/api/v4.1/employee/filter'
+export const NUSAWORK_SCHEDULE_API_URL =
+  process.env.NUSAWORK_SCHEDULE_API_URL ||
+  'https://nusawork.com/api/v2/calendar/schedule'
 
 export const EMPLOYEE_CHART_FILE =
   process.env.EMPLOYEE_CHART_FILE || '/tmp/employee-chart.json'
+
+export const EMPLOYEE_ON_DUTY_NOTIF_PIC_PHONES =
+  process.env.EMPLOYEE_ON_DUTY_NOTIF_PIC_PHONES || '[]'
+
+export const NUSAWA_MESSAGE_API_URL =
+  process.env.NUSAWA_MESSAGE_API_URL ||
+  'https://api.nusacontact.com/v2/messages'
+export const NUSAWA_MESSAGE_API_TOKEN =
+  process.env.NUSAWA_MESSAGE_API_TOKEN || ''

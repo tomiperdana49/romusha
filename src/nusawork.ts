@@ -3,6 +3,7 @@ import {
   NUSAWORK_AUTH_TOKEN_API_KEY,
   NUSAWORK_AUTH_TOKEN_API_URL,
   NUSAWORK_EMPLOYEE_API_URL,
+  NUSAWORK_SCHEDULE_API_URL,
 } from './config'
 import logger from './logger'
 
@@ -42,5 +43,27 @@ export async function getAllEmployee(token: string) {
     return response.data.data.list
   } catch (error: any) {
     logger.error(`Error get all employee: ${error.message}`)
+  }
+}
+
+export async function getEmployeeSchedule(token: string, date: Date) {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  const formattedDate = formatter.format(date).replaceAll('/', '-')
+  const params = { type: 'day', date: formattedDate }
+  try {
+    const response = await axios.get(NUSAWORK_SCHEDULE_API_URL, {
+      params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data.data
+  } catch (error: any) {
+    logger.error(`Error get schedule: ${error.message}`)
   }
 }

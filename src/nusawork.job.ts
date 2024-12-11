@@ -24,7 +24,7 @@ export async function sendEmployeeOnDutyNotif() {
     `\n*${employeeOnDutySchedule.name.trim()}*`
   const employees = await getAllEmployee(token)
   const employeeOnDuty = employees.find((employee: any) => {
-    return employee.full_name.trim() === employeeOnDutySchedule.name.trim()
+    return employee.user_id == employeeOnDutySchedule.user_id
   })
   recipients.push(
     employeeOnDuty.whatsapp

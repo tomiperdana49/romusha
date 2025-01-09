@@ -26,3 +26,16 @@ export const NUSAWA_MESSAGE_API_URL =
   'https://api.nusacontact.com/v2/messages'
 export const NUSAWA_MESSAGE_API_TOKEN =
   process.env.NUSAWA_MESSAGE_API_TOKEN || ''
+
+export const NIS_MYSQL_HOST = process.env.NIS_MYSQL_HOST || 'localhost'
+export const NIS_MYSQL_PORT = process.env.NIS_MYSQL_PORT || 3306
+export const NIS_MYSQL_USER = process.env.NIS_MYSQL_USER || 'root'
+export const NIS_MYSQL_PASSWORD = process.env.NIS_MYSQL_PASSWORD || ''
+export const NIS_MYSQL_DB = process.env.NIS_MYSQL_DB || 'test'
+
+export const SURREALDB_URL =
+  process.env.SURREALDB_URL || 'http://localhost:8000/rpc'
+export const SURREALDB_NAMESPACE = process.env.SURREALDB_NAMESPACE || 'nis'
+export const SURREALDB_DATABASE = process.env.SURREALDB_DATABASE || 'nis'
+export const SURREALDB_USERNAME = process.env.SURREALDB_USERNAME || 'root'
+export const SURREALDB_PASSWORD = process.env.SURREALDB_PASSWORD || 'secret'

@@ -6,6 +6,8 @@ import {
   NATS_TOKEN,
   MIN_BACKOFF_DELAY_SECONDS,
   MAX_BACKOFF_DELAY_SECONDS,
+  NATS_STREAM,
+  NATS_CONSUMER,
 } from './config'
 
 async function consumeMessages() {
@@ -23,7 +25,7 @@ async function consumeMessages() {
   })
 
   const js = nc.jetstream()
-  const c = await js.consumers.get('JOBS', 'romusha')
+  const c = await js.consumers.get(NATS_STREAM, NATS_CONSUMER)
 
   try {
     while (true) {

@@ -1,5 +1,5 @@
 import { AckPolicy, connect } from 'nats'
-import { NATS_SERVERS, NATS_TOKEN } from './config'
+import { NATS_CONSUMER, NATS_SERVERS, NATS_STREAM, NATS_TOKEN } from './config'
 
 const nc = await connect({
   servers: NATS_SERVERS,
@@ -8,10 +8,10 @@ const nc = await connect({
 const js = nc.jetstream()
 const jsm = await js.jetstreamManager()
 
-await jsm.consumers.add('JOBS', {
-  durable_name: 'romusha',
+await jsm.consumers.add(NATS_STREAM, {
+  durable_name: NATS_CONSUMER,
   ack_policy: AckPolicy.Explicit,
-  filter_subject: 'jobs.romusha.>',
+  filter_subject: `${NATS_STREAM.toLowerCase()}.${NATS_CONSUMER.toLowerCase()}.>`,
 })
 
 await nc.close()

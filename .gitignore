@@ -2,3 +2,4 @@
 bun.lockb
 dist
 node_modules
+bun.lock

@@ -39,3 +39,11 @@ export const SURREALDB_NAMESPACE = process.env.SURREALDB_NAMESPACE || 'nis'
 export const SURREALDB_DATABASE = process.env.SURREALDB_DATABASE || 'nis'
 export const SURREALDB_USERNAME = process.env.SURREALDB_USERNAME || 'root'
 export const SURREALDB_PASSWORD = process.env.SURREALDB_PASSWORD || 'secret'
+
+export const KARMA_ALERT_URL =
+  process.env.KARMA_ALERT_URL || 'https://karma.nusa.net.id/alerts.json'
+export const WHATSAPP_API_URL =
+  process.env.WHATSAPP_API_URL || 'https://nusacontact.com/api/messages'
+export const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN || 'secret'
+export const KARMA_ALERT_WHATSAPP_CONTACT =
+  process.env.KARMA_ALERT_WHATSAPP_CONTACT || '6281234567890'

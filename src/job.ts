@@ -3,6 +3,7 @@ import { generateEmployeeChart } from './employee.job'
 import logger from './logger'
 import { sendEmployeeOnDutyNotif } from './nusawork.job'
 import { syncFttxMonitor } from './sync.job'
+import { notifyKarmaAlerts } from './alert.job'
 
 export async function processJob(message: JsMsg) {
   const jobName = message.subject.split('.')[2]
@@ -17,6 +18,9 @@ export async function processJob(message: JsMsg) {
       break
     case 'syncFttxMonitor':
       syncFttxMonitor()
+      break
+    case 'notifyKarmaAlerts':
+      notifyKarmaAlerts()
       break
 
     default:

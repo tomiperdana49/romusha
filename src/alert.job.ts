@@ -50,21 +50,19 @@ function formatLabels(
  * @returns A formatted date string.
  */
 function formatAlertDate(startsAt: string): string {
-  const date = new Date(startsAt)
-  // Adjust to WIB (UTC+7)
-  const wibOffsetMs = 7 * 60 * 60 * 1000
-  const wibDate = new Date(date.getTime() + wibOffsetMs)
+  const date = new Date(startsAt) // No need to add 7 hours manually
 
+  // Get today's date in YYYY-MM-DD format
   const todayStr = new Date().toISOString().split('T')[0]
-  const alertDateStr = wibDate.toISOString().split('T')[0]
+  const alertDateStr = date.toISOString().split('T')[0]
 
   if (todayStr === alertDateStr) {
     // Return time in HH:mm format
-    return `"${wibDate.toTimeString().slice(0, 5)}"`
+    return `"${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}"`
   } else {
     // Return full date and time (YYYY-MM-DD HH:mm:ss)
-    const [datePart, timePart] = wibDate.toISOString().split('T')
-    const formattedTime = timePart.split('.')[0]
+    const [datePart, timePart] = date.toISOString().split('T')
+    const formattedTime = timePart.split('.')[0] // Extract HH:mm:ss
     return `"${datePart} ${formattedTime}"`
   }
 }

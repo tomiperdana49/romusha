@@ -34,7 +34,7 @@ function formatLabels(
 ): string {
   return Object.entries(labels)
     .map(([key, value]) => {
-      const needsQuote = keysToQuote.includes(key) && /\s/.test(value)
+      const needsQuote = /\s/.test(value)
       const formattedValue = needsQuote ? `"${value}"` : value
       return `${key}=${formattedValue}`
     })

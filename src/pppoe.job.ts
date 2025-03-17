@@ -1,12 +1,9 @@
 import { Client, type ClientChannel } from 'ssh2'
-import * as fs from 'fs'
-import { connect, type NatsConnection, JSONCodec } from 'nats'
+import { type NatsConnection, JSONCodec } from 'nats'
 import {
   PPPOE_SERVERS,
   PPPOE_SERVERS_PRIVATE_KEY,
   PPPOE_FETHED_EVENT_SUBJECT,
-  NATS_TOKEN,
-  NATS_SERVERS,
 } from './config'
 
 interface SSHConfig {
@@ -365,7 +362,7 @@ async function publishToNats<T>(
 ): Promise<void> {
   try {
     const jsonCodec = JSONCodec<T>()
-    await natsConn.publish(subject, jsonCodec.encode(data))
+    natsConn.publish(subject, jsonCodec.encode(data))
     console.log(`Published data to NATS subject: ${subject}`)
   } catch (error) {
     console.error(`Error publishing to NATS subject ${subject}:`, error)
@@ -373,37 +370,11 @@ async function publishToNats<T>(
   }
 }
 
-/**
- * Connects to NATS server
- * @param serverAddress - NATS server address
- * @param serverToken - NATS server token
- * @returns Promise with NATS connection
- */
-async function connectToNats(
-  serverAddress: string,
-  serverToken: string,
-): Promise<NatsConnection> {
-  try {
-    console.log(`Connecting to NATS server: ${serverAddress}`)
-    const nc = await connect({ servers: serverAddress, token: serverToken })
-    console.log(`Connected to NATS server: ${serverAddress}`)
-    return nc
-  } catch (error) {
-    console.error('Error connecting to NATS server:', error)
-    throw error
-  }
-}
-
-export async function collectAndPublishPPPoEData() {
+export async function collectAndPublishPPPoEData(natsConn: NatsConnection) {
   // Create SSH manager
   const sshManager = new SSHManager()
 
-  let natsConn: NatsConnection | null = null
-
   try {
-    // Connect to NATS server
-    natsConn = await connectToNats(NATS_SERVERS, NATS_TOKEN)
-
     // Add multiple servers
     sshManager.addServers(
       JSON.parse(PPPOE_SERVERS),
@@ -439,11 +410,5 @@ export async function collectAndPublishPPPoEData() {
     console.log('\nDisconnecting from all SSH servers...')
     sshManager.disconnectFromAll()
     console.log('All SSH connections closed')
-
-    // Close NATS connection if it exists
-    if (natsConn) {
-      await natsConn.close()
-      console.log('NATS connection closed')
-    }
   }
 }

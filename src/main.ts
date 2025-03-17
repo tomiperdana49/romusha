@@ -33,7 +33,7 @@ async function consumeMessages() {
       let messagesReceived = false
       for await (const message of fetchedMessages) {
         messagesReceived = true
-        processJob(message)
+        processJob(message, nc)
         backoffDelay = 1000
       }
       if (!messagesReceived) {

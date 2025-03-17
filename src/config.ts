@@ -49,3 +49,9 @@ export const WHATSAPP_API_URL =
 export const WHATSAPP_API_TOKEN = process.env.WHATSAPP_API_TOKEN || 'secret'
 export const KARMA_ALERT_WHATSAPP_CONTACT =
   process.env.KARMA_ALERT_WHATSAPP_CONTACT || '6281234567890'
+
+export const PPPOE_SERVERS = process.env.PPPOE_SERVERS || '[]'
+export const PPPOE_SERVERS_PRIVATE_KEY =
+  process.env.PPPOE_SERVERS_PRIVATE_KEY || ''
+export const PPPOE_FETHED_EVENT_SUBJECT =
+  process.env.PPPOE_FETHED_EVENT_SUBJECT || 'events.pppoe_data_fetched'

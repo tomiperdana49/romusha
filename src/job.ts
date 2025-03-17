@@ -4,6 +4,7 @@ import logger from './logger'
 import { sendEmployeeOnDutyNotif } from './nusawork.job'
 import { syncFttxMonitor } from './sync.job'
 import { notifyKarmaAlerts } from './alert.job'
+import { collectAndPublishPPPoEData } from './pppoe.job'
 
 export async function processJob(message: JsMsg) {
   const jobName = message.subject.split('.')[2]
@@ -21,6 +22,9 @@ export async function processJob(message: JsMsg) {
       break
     case 'notifyKarmaAlerts':
       notifyKarmaAlerts()
+      break
+    case 'collectAndPublishPPPoEData':
+      collectAndPublishPPPoEData()
       break
 
     default:

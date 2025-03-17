@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --hot src/main.ts",
-    "build": "bun build --minify --outfile dist/main.js --target bun src/main.ts"
+    "build": "bun build --minify --outdir dist --outfile dist/main.js --target bun src/main.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

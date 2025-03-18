@@ -390,9 +390,6 @@ export async function collectAndPublishPPPoEData(natsConn: NatsConnection) {
     console.log('\nCollecting PPPoE interface data...')
     const serverInterfaces = await collectPPPoEInterfaceData(sshManager)
 
-    // For debugging
-    console.log(JSON.stringify(serverInterfaces, null, 2))
-
     // Prepare data for NATS
     const natsMessage: PPPoEInterfaceNatsMessage = {
       timestamp: Date.now(),

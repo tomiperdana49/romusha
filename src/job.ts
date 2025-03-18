@@ -2,7 +2,7 @@ import { type JsMsg, type NatsConnection } from 'nats'
 import { generateEmployeeChart } from './employee.job'
 import logger from './logger'
 import { sendEmployeeOnDutyNotif } from './nusawork.job'
-import { syncFttxMonitor } from './sync.job'
+import { syncFttxMonitor } from './fttx.job'
 import { notifyKarmaAlerts } from './alert.job'
 import { collectAndPublishPPPoEData } from './pppoe.job'
 

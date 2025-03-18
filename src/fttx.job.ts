@@ -1,10 +1,22 @@
 import { RecordId } from 'surrealdb'
-import { initDb as initMysql } from './nis.mysql'
-import { initDb as initSurreal } from './surreal'
+import { initDb } from './nis.mysql'
+import { Surreal } from 'surrealdb'
+import {
+  SURREALDB_DATABASE,
+  SURREALDB_NAMESPACE,
+  SURREALDB_PASSWORD,
+  SURREALDB_URL,
+  SURREALDB_USERNAME,
+} from './config'
 
 export async function syncFttxMonitor() {
-  const mysqlDb = initMysql()
-  const surrealDb = await initSurreal()
+  const mysqlDb = initDb()
+  const surrealDb = new Surreal()
+  await surrealDb.connect(SURREALDB_URL, {
+    namespace: SURREALDB_NAMESPACE,
+    database: SURREALDB_DATABASE,
+    auth: { username: SURREALDB_USERNAME, password: SURREALDB_PASSWORD }
+  })
   if (!mysqlDb) {
     throw new Error('MySQL initialization failed')
   }
@@ -50,4 +62,5 @@ export async function syncFttxMonitor() {
   } catch (error) {
     console.error(error)
   }
+  surrealDb.close()
 }

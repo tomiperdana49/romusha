@@ -55,3 +55,15 @@ export const PPPOE_SERVERS_PRIVATE_KEY =
   process.env.PPPOE_SERVERS_PRIVATE_KEY || ''
 export const PPPOE_FETHED_EVENT_SUBJECT =
   process.env.PPPOE_FETHED_EVENT_SUBJECT || 'events.pppoe_data_fetched'
+
+export const ZBX_MYSQL_HOST = process.env.ZBX_MYSQL_HOST || 'localhost'
+export const ZBX_MYSQL_USER = process.env.ZBX_MYSQL_USER || 'root'
+export const ZBX_MYSQL_PASSWORD = process.env.ZBX_MYSQL_PASSWORD || ''
+export const ZBX_MYSQL_DB = process.env.ZBX_MYSQL_DB || 'zabbix'
+export const ZBX_MYSQL_PORT = process.env.ZBX_MYSQL_PORT || 3306
+
+export const ZABBIX_PSQL_HOST = process.env.ZABBIX_PSQL_HOST || 'localhost'
+export const ZABBIX_PSQL_USER = process.env.ZABBIX_PSQL_USER || 'root'
+export const ZABBIX_PSQL_PASSWORD = process.env.ZABBIX_PSQL_PASSWORD || ''
+export const ZABBIX_PSQL_DB = process.env.ZABBIX_PSQL_DB || 'zabbix'
+export const ZABBIX_PSQL_PORT = process.env.ZABBIX_PSQL_PORT || 5432

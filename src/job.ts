@@ -5,6 +5,7 @@ import { sendEmployeeOnDutyNotif } from './nusawork.job'
 import { syncFttxMonitor } from './fttx.job'
 import { notifyKarmaAlerts } from './alert.job'
 import { collectAndPublishPPPoEData } from './pppoe.job'
+import { syncZabbixData } from './zabbix.job'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const jobName = message.subject.split('.')[2]
@@ -25,6 +26,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
       break
     case 'collectAndPublishPPPoEData':
       collectAndPublishPPPoEData(nc)
+      break
+    case 'syncZabbixData':
+      syncZabbixData()
       break
 
     default:

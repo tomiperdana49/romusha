@@ -49,7 +49,33 @@ function isDominantColor(hexColor: string): 'blue' | 'green' | 'unknown' {
   }
 }
 
-export async function syncZabbixData() {
+function isValidDateFormat(dateString: string) {
+  // Regular expression to match YYYY-MM-DD format
+  const regex = /^\d{4}-\d{2}-\d{2}$/
+
+  // Test if the string matches the pattern
+  if (!regex.test(dateString)) {
+    return false
+  }
+
+  // Optionally verify it's actually a valid date
+  // by trying to parse it
+  const parts = dateString.split('-')
+  const year = parseInt(parts[0], 10)
+  const month = parseInt(parts[1], 10) - 1 // Months are 0-based in JS
+  const day = parseInt(parts[2], 10)
+
+  const date = new Date(year, month, day)
+
+  // Check if the date is valid and matches the input
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month &&
+    date.getDate() === day
+  )
+}
+
+export async function syncZabbixData(date: string = 'yesterday') {
   const db = initDb()
   if (!db) {
     throw new Error('MySQL initialization failed')
@@ -106,11 +132,17 @@ export async function syncZabbixData() {
     }
   }
 
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
-  yesterday.setHours(0, 0, 0, 0)
-  const startTimestamp = Math.floor(yesterday.getTime() / 1000)
-  const startDate = new Date(startTimestamp * 1000)
+  let startDate
+
+  if (isValidDateFormat(date)) {
+    startDate = new Date(date)
+  } else {
+    startDate = new Date()
+    startDate.setDate(startDate.getDate() - 1) // yesterday
+    startDate.setHours(0, 0, 0, 0)
+  }
+  const startTimestamp = Math.floor(startDate.getTime() / 1000)
+
   const yyyy = startDate.getFullYear()
   const mm = String(startDate.getMonth() + 1).padStart(2, '0')
   const dd = String(startDate.getDate()).padStart(2, '0')

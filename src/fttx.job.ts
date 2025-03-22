@@ -15,7 +15,7 @@ export async function syncFttxMonitor() {
   await surrealDb.connect(SURREALDB_URL, {
     namespace: SURREALDB_NAMESPACE,
     database: SURREALDB_DATABASE,
-    auth: { username: SURREALDB_USERNAME, password: SURREALDB_PASSWORD }
+    auth: { username: SURREALDB_USERNAME, password: SURREALDB_PASSWORD },
   })
   if (!mysqlDb) {
     throw new Error('MySQL initialization failed')

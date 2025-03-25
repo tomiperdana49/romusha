@@ -103,7 +103,7 @@ export async function syncZabbixData(date: string = 'yesterday') {
     LEFT JOIN Customer c ON cs.CustId = c.CustId
     WHERE cs.CustStatus NOT IN ('NA')
     AND c.BranchId = '020' 
-    ORDER BY cs.CustServId, cszg.Id
+    ORDER BY cs.CustServId, cszg.OrderNo, cszg.Id
   `
 
   const graphMap: GraphMap = {}
@@ -235,9 +235,9 @@ export async function syncZabbixData(date: string = 'yesterday') {
     SET accountName = '${acc}',
         csid = ${csid},
         date = '${formattedStartDate}',
-        total = ${Number(upload) + Number(download)},
-        download = ${download},
-        upload = ${upload}
+        total = ${Number(upload) + Number(download)} / 8,
+        download = ${download} / 8,
+        upload = ${upload} / 8
     `
     await db.execute(sql)
   }

@@ -67,3 +67,6 @@ export const ZABBIX_PSQL_USER = process.env.ZABBIX_PSQL_USER || 'root'
 export const ZABBIX_PSQL_PASSWORD = process.env.ZABBIX_PSQL_PASSWORD || ''
 export const ZABBIX_PSQL_DB = process.env.ZABBIX_PSQL_DB || 'zabbix'
 export const ZABBIX_PSQL_PORT = process.env.ZABBIX_PSQL_PORT || 5432
+
+export const KARMA_ALERT_URL_SEARCH =
+  process.env.KARMA_ALERT_URL_SEARCH || 'https://karma.nusa.net.id/alerts.json'

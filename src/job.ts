@@ -6,6 +6,7 @@ import { syncFttxMonitor } from './fttx.job'
 import { notifyKarmaAlerts } from './alert.job'
 import { collectAndPublishPPPoEData } from './pppoe.job'
 import { syncZabbixData } from './zabbix.job'
+import { muteOrphanAlert } from './mute-orphan-alert.job'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')
@@ -31,6 +32,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
     case 'syncZabbixData':
       const date = subjectParts[3]
       syncZabbixData(date)
+      break
+    case 'muteOrphanAlert':
+      muteOrphanAlert()
       break
 
     default:

@@ -23,9 +23,9 @@ export async function muteOrphanAlert(): Promise<void> {
                         alerts.forEach(async (alert, index) => {
                             if (alert.labels.iface) {
                                 const iface = alert.labels.iface;
-                                const regex12 = /^(X[0-9a-f]{12}|[0-9a-f]{13})$/;
-                                const regex13 = /^([0-9a-f]{12}|[0-9a-f]{13})$/;
-                                if (regex12.test(iface) == false && regex12.test(iface) == false) {
+                                const regex12 = /^(X[0-9a-f]{12}|[0-9a-f]{13})$/i;
+                                const regex13 = /^[0-9a-f]{12,13}$/i;
+                                if (regex12.test(iface) == false && regex13.test(iface) == false) {
                                     return;
                                 }
 

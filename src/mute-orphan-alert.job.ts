@@ -25,8 +25,6 @@ export async function muteOrphanAlert(): Promise<void> {
                                 const iface = alert.labels.iface;
                                 const regex12 = /^(X[0-9a-f]{12}|[0-9a-f]{13})$/;
                                 const regex13 = /^([0-9a-f]{12}|[0-9a-f]{13})$/;
-                                console.log(regex12.test(iface))
-                                console.log(regex13.test(iface))
                                 if (regex12.test(iface) == false && regex12.test(iface) == false) {
                                     return;
                                 }
@@ -47,7 +45,6 @@ export async function muteOrphanAlert(): Promise<void> {
                                     createdBy: "Tomi",
                                     comment: "reserved"
                                 };
-
                                 try {
                                     const silenceUrl = 'https://nmx.nusa.net.id/karma/proxy/alertmanager/almmdn/api/v2/silences';
                                     const silenceResponse = await axios.post(silenceUrl, silencePayload);

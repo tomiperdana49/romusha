@@ -3,6 +3,7 @@ import {
   NUSAWORK_AUTH_TOKEN_API_KEY,
   NUSAWORK_AUTH_TOKEN_API_URL,
   NUSAWORK_EMPLOYEE_API_URL,
+  NUSAWORK_EMPLOYEE_API_V2_URL,
   NUSAWORK_SCHEDULE_API_URL,
 } from './config'
 import logger from './logger'
@@ -28,19 +29,18 @@ export async function getAllEmployee(token: string) {
     fields: {
       active_status: ['active'],
     },
-    page_count: 10000,
-    currentPage: 1,
+    paginate: false,
     periods: [formatedToday, formatedToday],
   }
 
   try {
-    const response = await axios.post(NUSAWORK_EMPLOYEE_API_URL, payload, {
+    const response = await axios.post(NUSAWORK_EMPLOYEE_API_V2_URL, payload, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
-    return response.data.data.list
+    return response.data;
   } catch (error: any) {
     logger.error(`Error get all employee: ${error.message}`)
   }

@@ -1,23 +1,24 @@
 import * as path from 'path'
 import * as fs from 'fs/promises'
 import { fetchNusaworkAuthToken, getAllEmployee } from './nusawork'
-import { EMPLOYEE_CHART_FILE } from './config'
+import { EMPLOYEE_CHART_FILE, NUSAWORK_EMPLOYEE_PHOTO_URL } from './config'
 import logger from './logger'
 
 function transformEmployeeData(employees: any[]) {
   return employees.map((employee: any) => {
     const reportTo = employees.find(
-      (e) => e.user_id == employee.id_report_to_value,
+      (e) => e.user_id == employee.id_report_to,
     )
     return {
       IDEmployee: employee.employee_id,
       Nama: employee.full_name.trim(),
-      Jabatan: employee.job_position,
+      Jabatan: employee.job_position_name,
       Departemen: employee.organization_name,
       IDAtasan:
         reportTo.employee_id == employee.employee_id
           ? '-'
           : reportTo.employee_id,
+      URLPhoto: `${NUSAWORK_EMPLOYEE_PHOTO_URL}/${employee.photo_profile}`,
     }
   })
 }

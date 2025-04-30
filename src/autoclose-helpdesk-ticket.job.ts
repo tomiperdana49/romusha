@@ -15,37 +15,37 @@ const REQUEST_TICKET = 1
 const INCIDENT_TICKET = 2
 
 async function processSyncT2T(
-    ticketId: number,
-    updateId: number,
-    contactId: string,
-    config: {
-      is: {
-        apiKey: string,
-        syncT2TUrl: string,
-      }
+  ticketId: number,
+  updateId: number,
+  contactId: string,
+  config: {
+    is: {
+      apiKey: string
+      syncT2TUrl: string
     }
-  ): Promise<number> {
-    try {
-      const response = await axios.post(
-        config.is.syncT2TUrl,
-        {
-          ttsId: ticketId,
-          ttsUpdateId: updateId,
-          contactIdT2T: contactId,
+  },
+): Promise<number> {
+  try {
+    const response = await axios.post(
+      config.is.syncT2TUrl,
+      {
+        ttsId: ticketId,
+        ttsUpdateId: updateId,
+        contactIdT2T: contactId,
+      },
+      {
+        headers: {
+          'X-Api-Key': config.is.apiKey,
+          'Content-Type': 'application/json; charset=utf-8',
         },
-        {
-          headers: {
-            'X-Api-Key': config.is.apiKey,
-            'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
-      )
-      return response.status
-    } catch (err: any) {
-      console.error(`Failed syncing T2T for ticket ${ticketId}`, err.message)
-      return 500
-    }
+      },
+    )
+    return response.status
+  } catch (err: any) {
+    console.error(`Failed syncing T2T for ticket ${ticketId}`, err.message)
+    return 500
   }
+}
 
 export async function autocloseHelpdeskTicket(): Promise<void> {
   const mysqlDb = initDb()
@@ -66,18 +66,28 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       AND IFNULL(e.DisplayBranchId, e.BranchId) IN ('020')
     ORDER BY tu.TtsId, tu.UpdatedTime DESC
     `,
-    [REQUEST_TICKET, INCIDENT_TICKET]
+    [REQUEST_TICKET, INCIDENT_TICKET],
   )
 
   const proceeded = new Set()
   const now = new Date()
 
   for (const ticket of solvedTickets as any[]) {
-    const { TtsId, UpdatedTime, TtsTypeId, CustId, AssignedNo, VcId, contactIdT2T} = ticket
+    const {
+      TtsId,
+      UpdatedTime,
+      TtsTypeId,
+      CustId,
+      AssignedNo,
+      VcId,
+      contactIdT2T,
+    } = ticket
     if (proceeded.has(TtsId)) continue
     proceeded.add(TtsId)
 
-    const updatedPlusIgnore = new Date(new Date(UpdatedTime).getTime() + GRACEPERIOD_HELPDESK * 1000)
+    const updatedPlusIgnore = new Date(
+      new Date(UpdatedTime).getTime() + GRACEPERIOD_HELPDESK * 1000,
+    )
     if (updatedPlusIgnore > now) continue
 
     // Insert into TtsUpdate
@@ -87,18 +97,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
         TtsId, UpdatedTime, ActionStart, ActionBegin, ActionEnd, ActionStop, EmpId, Note, AssignedNo, Status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
-      [
-        TtsId,
-        now,
-        now,
-        now,
-        now,
-        now,
-        'SYSTEM',
-        'closed by SYSTEM',
-        0,
-        'Call',
-      ]
+      [TtsId, now, now, now, now, now, 'SYSTEM', 'closed by SYSTEM', 0, 'Call'],
     )
     const insertedUpdateId = (insertResult as any).insertId
 
@@ -109,7 +108,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       VALUES (?, 'Status', 'Call', 'Closed'),
              (?, 'SolvedBy', '', 'helpdesk')
       `,
-      [insertedUpdateId, insertedUpdateId]
+      [insertedUpdateId, insertedUpdateId],
     )
 
     // Update into Tts
@@ -119,17 +118,17 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       SET Visited = 0, Status = 'Closed', SolvedBy = 'helpdesk'
       WHERE TtsId = ?
       `,
-      [TtsId]
+      [TtsId],
     )
 
     // Skip feedback for REQUEST ticket
     if (TtsTypeId === REQUEST_TICKET) continue
 
     // Fetch contact number
-    const [contactResult] = await mysqlDb.query(
+    const [contactResult] = (await mysqlDb.query(
       `SELECT ContactNo FROM TtsContact WHERE TtsId = ? LIMIT 1`,
-      [TtsId]
-    ) as any[]
+      [TtsId],
+    )) as any[]
     if (contactResult.length === 0 || !contactResult[0].ContactNo) continue
 
     let destination = contactResult[0].ContactNo
@@ -144,23 +143,23 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       await axios.post(
         WHATSAPP_NUSACONTACT_API_URL,
         {
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
           to: destination,
-          type: "template",
+          type: 'template',
           template: {
             namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: "feedback_score_v02",
-            language: { code: "id" },
-            components: [{ type: "body", parameters: [] }]
-          }
+            name: 'feedback_score_v02',
+            language: { code: 'id' },
+            components: [{ type: 'body', parameters: [] }],
+          },
         },
         {
           headers: {
             'X-Api-Key': WHATSAPP_NUSACONTACT_API_APIKEY,
             'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
+          },
+        },
       )
 
       // Save feedback info
@@ -177,30 +176,30 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
         {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
+          },
+        },
       )
 
       // Call Sync T2T
       if (VcId) {
-        await processSyncT2T(
-          TtsId,
-          insertedUpdateId,
-          contactIdT2T,
-          {
-            is: {
-              apiKey: SYNC_T2T_API_KEY,
-              syncT2TUrl: SYNC_T2T_API_URL,
-            }
-          }
-        )
+        await processSyncT2T(TtsId, insertedUpdateId, contactIdT2T, {
+          is: {
+            apiKey: SYNC_T2T_API_KEY,
+            syncT2TUrl: SYNC_T2T_API_URL,
+          },
+        })
       }
-
     } catch (err) {
       if (err instanceof Error) {
-        console.error(`Failed sending WhatsApp feedback for ticket ${TtsId}`, err.message)
+        console.error(
+          `Failed sending WhatsApp feedback for ticket ${TtsId}`,
+          err.message,
+        )
       } else {
-        console.error(`Failed sending WhatsApp feedback for ticket ${TtsId}`, err)
+        console.error(
+          `Failed sending WhatsApp feedback for ticket ${TtsId}`,
+          err,
+        )
       }
     }
   }

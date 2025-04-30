@@ -70,11 +70,16 @@ export const ZABBIX_PSQL_PORT = process.env.ZABBIX_PSQL_PORT || 5432
 
 export const KARMA_ALERT_URL_SEARCH =
   process.env.KARMA_ALERT_URL_SEARCH || 'https://karma.nusa.net.id/alerts.json'
-export const GRACEPERIOD_HELPDESK = Number(process.env.GRACEPERIOD_HELPDESK) || 2025
-export const GRACEPERIOD_ENGINEER = Number(process.env.GRACEPERIOD_ENGINEER) || 2025
-export const WHATSAPP_NUSACONTACT_API_URL = process.env.WHATSAPP_NUSACONTACT_API_URL || ''
-export const WHATSAPP_NUSACONTACT_API_NAMESPACE = process.env.WHATSAPP_NUSACONTACT_API_NAMESPACE || 'nusaContact'
-export const WHATSAPP_NUSACONTACT_API_APIKEY = process.env.WHATSAPP_NUSACONTACT_API_APIKEY || ''
+export const GRACEPERIOD_HELPDESK =
+  Number(process.env.GRACEPERIOD_HELPDESK) || 2025
+export const GRACEPERIOD_ENGINEER =
+  Number(process.env.GRACEPERIOD_ENGINEER) || 2025
+export const WHATSAPP_NUSACONTACT_API_URL =
+  process.env.WHATSAPP_NUSACONTACT_API_URL || ''
+export const WHATSAPP_NUSACONTACT_API_NAMESPACE =
+  process.env.WHATSAPP_NUSACONTACT_API_NAMESPACE || 'nusaContact'
+export const WHATSAPP_NUSACONTACT_API_APIKEY =
+  process.env.WHATSAPP_NUSACONTACT_API_APIKEY || ''
 export const WHATSAPP_FEEDBACK_URL = process.env.WHATSAPP_FEEDBACK_URL || ''
 export const WHATSAPP_QUESTION = process.env.WHATSAPP_QUESTION || ''
 export const SYNC_T2T_API_URL = process.env.SYNC_T2T_API_URL || ''

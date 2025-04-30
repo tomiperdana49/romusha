@@ -15,48 +15,48 @@ import axios from 'axios'
 const REQUEST_TICKET = 1
 const INCIDENT_TICKET = 2
 
-const HELPDESK_DEPT = new Set(["01", "17", "29", "34"])
-const ENGINEER_DEPT = new Set(["04"])
+const HELPDESK_DEPT = new Set(['01', '17', '29', '34'])
+const ENGINEER_DEPT = new Set(['04'])
 
 async function processSyncT2T(
-    ticketId: number,
-    updateId: number,
-    contactId: string,
-    config: {
-      is: {
-        apiKey: string,
-        syncT2TUrl: string,
-      }
+  ticketId: number,
+  updateId: number,
+  contactId: string,
+  config: {
+    is: {
+      apiKey: string
+      syncT2TUrl: string
     }
-  ): Promise<number> {
-    try {
-      const response = await axios.post(
-        config.is.syncT2TUrl,
-        {
-          ttsId: ticketId,
-          ttsUpdateId: updateId,
-          contactIdT2T: contactId,
+  },
+): Promise<number> {
+  try {
+    const response = await axios.post(
+      config.is.syncT2TUrl,
+      {
+        ttsId: ticketId,
+        ttsUpdateId: updateId,
+        contactIdT2T: contactId,
+      },
+      {
+        headers: {
+          'X-Api-Key': config.is.apiKey,
+          'Content-Type': 'application/json; charset=utf-8',
         },
-        {
-          headers: {
-            'X-Api-Key': config.is.apiKey,
-            'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
-      )
-      return response.status
-    } catch (err: any) {
-      console.error(`Failed syncing T2T for ticket ${ticketId}`, err.message)
-      return 500
-    }
+      },
+    )
+    return response.status
+  } catch (err: any) {
+    console.error(`Failed syncing T2T for ticket ${ticketId}`, err.message)
+    return 500
   }
+}
 
 export async function autocloseAssignedTicket(): Promise<void> {
   const mysqlDb = initDb()
   if (!mysqlDb) {
     throw new Error('MySQL initialization failed')
   }
-  
+
   const [solvedTickets] = await mysqlDb.query(
     `
     SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T
@@ -70,47 +70,56 @@ export async function autocloseAssignedTicket(): Promise<void> {
       AND IFNULL(e.DisplayBranchId, e.BranchId) IN ('020', '027', '062')
     ORDER BY tu.TtsId, tu.UpdatedTime DESC
     `,
-    [REQUEST_TICKET, INCIDENT_TICKET]
+    [REQUEST_TICKET, INCIDENT_TICKET],
   )
 
   const proceeded = new Set()
   const now = new Date()
   for (const ticket of solvedTickets as any[]) {
-    const { TtsId, UpdatedTime, TtsTypeId, CustId, AssignedNo, VcId, contactIdT2T,  } = ticket
+    const {
+      TtsId,
+      UpdatedTime,
+      TtsTypeId,
+      CustId,
+      AssignedNo,
+      VcId,
+      contactIdT2T,
+    } = ticket
     if (proceeded.has(TtsId)) continue
     proceeded.add(TtsId)
     const [rows] = await mysqlDb.query(
-        `
+      `
         SELECT e.EmpId, e.DeptId
         FROM TtsPIC tp
         LEFT JOIN Employee e ON tp.EmpId = e.EmpId
         WHERE tp.TtsId = ? AND tp.AssignedNo = ?
         `,
-        [TtsId, AssignedNo]
+      [TtsId, AssignedNo],
     )
-    const picRows = rows as { EmpId: string; DeptId: string }[];
+    const picRows = rows as { EmpId: string; DeptId: string }[]
 
     if (picRows.length === 0) continue
 
     const { DeptId } = picRows[0]
     let gracePeriod: number
 
-    let resolver = ""
+    let resolver = ''
 
     if (HELPDESK_DEPT.has(DeptId)) {
       gracePeriod = GRACEPERIOD_HELPDESK
-      resolver = "helpdesk"
+      resolver = 'helpdesk'
     } else if (ENGINEER_DEPT.has(DeptId)) {
       gracePeriod = GRACEPERIOD_ENGINEER
-      resolver = "engineer"
+      resolver = 'engineer'
     } else {
       continue
     }
 
-
-    const updatedTimePlusGrace = new Date(new Date(UpdatedTime).getTime() + gracePeriod * 1000)
+    const updatedTimePlusGrace = new Date(
+      new Date(UpdatedTime).getTime() + gracePeriod * 1000,
+    )
     if (updatedTimePlusGrace > now) {
-    continue
+      continue
     }
 
     // Insert into TtsUpdate
@@ -131,7 +140,7 @@ export async function autocloseAssignedTicket(): Promise<void> {
         'closed by SYSTEM',
         AssignedNo,
         'Call',
-      ]
+      ],
     )
     const insertedUpdateId = (insertResult as any).insertId
 
@@ -142,7 +151,7 @@ export async function autocloseAssignedTicket(): Promise<void> {
       VALUES (?, 'Status', 'Call', 'Closed'),
              (?, 'SolvedBy', '', ?)
       `,
-      [insertedUpdateId, insertedUpdateId, resolver]
+      [insertedUpdateId, insertedUpdateId, resolver],
     )
 
     // Update into Tts
@@ -152,24 +161,24 @@ export async function autocloseAssignedTicket(): Promise<void> {
       SET Visited = ?, Status = 'Closed', SolvedBy = ?
       WHERE TtsId = ?
       `,
-      [resolver === "engineer" ? 1 : 0, resolver, TtsId]
+      [resolver === 'engineer' ? 1 : 0, resolver, TtsId],
     )
 
     // Skip feedback sending for REQUEST ticket closed by helpdesk
-    if (TtsTypeId === REQUEST_TICKET && resolver === "helpdesk") {
+    if (TtsTypeId === REQUEST_TICKET && resolver === 'helpdesk') {
       continue
     }
 
     // Fetch ContactNo
-    const [contactResult] = await mysqlDb.query(
+    const [contactResult] = (await mysqlDb.query(
       `
       SELECT ContactNo
       FROM TtsContact
       WHERE TtsId = ?
       LIMIT 1
       `,
-      [TtsId]
-    ) as any[]
+      [TtsId],
+    )) as any[]
     if (contactResult.length === 0) continue
 
     let destination = contactResult[0].ContactNo
@@ -185,23 +194,23 @@ export async function autocloseAssignedTicket(): Promise<void> {
       await axios.post(
         WHATSAPP_NUSACONTACT_API_URL,
         {
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
           to: destination,
-          type: "template",
+          type: 'template',
           template: {
             namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: "feedback_score_v02",
-            language: { code: "id" },
-            components: [{ type: "body", parameters: [] }]
-          }
+            name: 'feedback_score_v02',
+            language: { code: 'id' },
+            components: [{ type: 'body', parameters: [] }],
+          },
         },
         {
           headers: {
             'X-Api-Key': WHATSAPP_NUSACONTACT_API_APIKEY,
             'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
+          },
+        },
       )
 
       // Save feedback send info
@@ -218,31 +227,31 @@ export async function autocloseAssignedTicket(): Promise<void> {
         {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
-          }
-        }
+          },
+        },
       )
 
       // Call Sync T2T
       if (VcId) {
-        await processSyncT2T(
-          TtsId,
-          insertedUpdateId,
-          contactIdT2T,
-          {
-            is: {
-              apiKey: SYNC_T2T_API_KEY,
-              syncT2TUrl: SYNC_T2T_API_URL,
-            }
-          }
+        await processSyncT2T(TtsId, insertedUpdateId, contactIdT2T, {
+          is: {
+            apiKey: SYNC_T2T_API_KEY,
+            syncT2TUrl: SYNC_T2T_API_URL,
+          },
+        })
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(
+          `Failed sending WhatsApp feedback for ticket ${TtsId}`,
+          err.message,
+        )
+      } else {
+        console.error(
+          `Failed sending WhatsApp feedback for ticket ${TtsId}`,
+          err,
         )
       }
-
-    } catch (err) {
-        if (err instanceof Error) {
-            console.error(`Failed sending WhatsApp feedback for ticket ${TtsId}`, err.message)
-        } else {
-            console.error(`Failed sending WhatsApp feedback for ticket ${TtsId}`, err);
-        }
     }
   }
 

@@ -7,6 +7,9 @@ import { notifyKarmaAlerts } from './alert.job'
 import { collectAndPublishPPPoEData } from './pppoe.job'
 import { syncZabbixData } from './zabbix.job'
 import { muteOrphanAlert } from './mute-orphan-alert.job'
+import { autocloseAssignedTicket } from './autoclose-assigned-ticket.job'
+import { autoCloseSurveyTickets } from './autoclose-survey-ticket.job'
+import { autocloseHelpdeskTicket } from './autoclose-helpdesk-ticket.job'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')
@@ -35,6 +38,15 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
       break
     case 'muteOrphanAlert':
       muteOrphanAlert()
+      break
+    case 'autocloseAssignedTicket':
+      autocloseAssignedTicket()
+      break
+    case 'autoCloseSurveyTickets':
+      autoCloseSurveyTickets()
+      break
+    case 'autocloseHelpdeskTicket':
+      autocloseHelpdeskTicket()
       break
 
     default:

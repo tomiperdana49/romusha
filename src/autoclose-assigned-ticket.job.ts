@@ -254,6 +254,4 @@ export async function autocloseAssignedTicket(): Promise<void> {
       }
     }
   }
-
-  await mysqlDb.end()
 }

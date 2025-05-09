@@ -203,6 +203,4 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       }
     }
   }
-
-  await mysqlDb.end()
 }

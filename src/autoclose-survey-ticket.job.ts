@@ -124,6 +124,4 @@ export async function autoCloseSurveyTickets(): Promise<void> {
       })
     }
   }
-
-  await db.end()
 }

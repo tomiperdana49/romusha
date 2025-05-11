@@ -7,7 +7,7 @@ import logger from './logger'
 function transformEmployeeData(employees: any[]) {
   return employees.map((employee: any) => {
     const reportTo = employees.find(
-      (e) => e.user_id == employee.id_report_to,
+      (e) => e.user_id == employee.id_report_to_value,
     )
     return {
       IDEmployee: employee.employee_id,
@@ -18,7 +18,6 @@ function transformEmployeeData(employees: any[]) {
         reportTo.employee_id == employee.employee_id
           ? '-'
           : reportTo.employee_id,
-      URLPhoto: `${NUSAWORK_EMPLOYEE_PHOTO_URL}/${employee.photo_profile}`,
     }
   })
 }

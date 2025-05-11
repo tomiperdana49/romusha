@@ -40,7 +40,7 @@ export async function getAllEmployee(token: string) {
         'Content-Type': 'application/json',
       },
     })
-    return response.data;
+    return response.data.data
   } catch (error: any) {
     logger.error(`Error get all employee: ${error.message}`)
   }

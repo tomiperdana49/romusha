@@ -15,10 +15,10 @@ export const NUSAWORK_EMPLOYEE_API_URL =
   'https://nusawork.com/api/v4.1/employee/filter'
 export const NUSAWORK_EMPLOYEE_API_V2_URL =
   process.env.NUSAWORK_EMPLOYEE_API_V2_URL ||
-  'https://nusawork.com/api/v4.2/employee/filter'
-export const NUSAWORK_EMPLOYEE_PHOTO_URL =
-  process.env.NUSAWORK_EMPLOYEE_PHOTO_URL ||
-  'https://nusawork.com/api/photo_profile'
+  'https://nusawork.com/api/v4.2/client/employee/filter'
+export const NUSAWORK_JOB_LEVEL_API_URL =
+  process.env.NUSAWORK_JOB_LEVEL_API_URL ||
+  'https://nusawork.com/emp/api/v1.1/job-level'
 export const NUSAWORK_SCHEDULE_API_URL =
   process.env.NUSAWORK_SCHEDULE_API_URL ||
   'https://nusawork.com/api/v2/calendar/schedule'

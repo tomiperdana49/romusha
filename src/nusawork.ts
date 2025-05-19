@@ -4,6 +4,7 @@ import {
   NUSAWORK_AUTH_TOKEN_API_URL,
   NUSAWORK_EMPLOYEE_API_URL,
   NUSAWORK_EMPLOYEE_API_V2_URL,
+  NUSAWORK_JOB_LEVEL_API_URL,
   NUSAWORK_SCHEDULE_API_URL,
 } from './config'
 import logger from './logger'
@@ -65,5 +66,19 @@ export async function getEmployeeSchedule(token: string, date: Date) {
     return response.data.data
   } catch (error: any) {
     logger.error(`Error get schedule: ${error.message}`)
+  }
+}
+
+export async function getAllJob(token: string) {
+  try {
+    const response = await axios.get(NUSAWORK_JOB_LEVEL_API_URL, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    return response.data.data
+  } catch (error: any) {
+    logger.error(`Error get all job: ${error.message}`)
   }
 }

@@ -9,9 +9,7 @@ function transformEmployeeData(employees: any[], jobs: Job[]) {
     const reportTo = employees.find(
       (e) => e.user_id == employee.id_report_to_value,
     )
-    const jobLevel = jobs.find(
-      (j) => j.name == employee.job_level,
-    )
+    const jobLevel = jobs.find((j) => j.name == employee.job_level)
     return {
       IDEmployee: employee.employee_id,
       Nama: employee.full_name.trim(),
@@ -30,7 +28,7 @@ function transformEmployeeData(employees: any[], jobs: Job[]) {
 export async function generateEmployeeChart() {
   const token = await fetchNusaworkAuthToken()
   const employees = await getAllEmployee(token)
-  const jobs = await getAllJob(token);
+  const jobs = await getAllJob(token)
   const chart = await transformEmployeeData(employees, jobs)
 
   const tempDir = await fs.mkdtemp(

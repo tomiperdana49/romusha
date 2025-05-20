@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as fs from 'fs/promises'
 import { fetchNusaworkAuthToken, getAllEmployee, getAllJob } from './nusawork'
-import { EMPLOYEE_CHART_FILE } from './config'
+import { EMPLOYEE_CHART_FILE, NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX } from './config'
 import logger from './logger'
 
 function transformEmployeeData(employees: any[], jobs: Job[]) {
@@ -19,7 +19,7 @@ function transformEmployeeData(employees: any[], jobs: Job[]) {
         reportTo.employee_id == employee.employee_id
           ? '-'
           : reportTo.employee_id,
-      URLPhoto: employee.photo_profile,
+      URLPhoto: NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX + employee.photo_profile,
       Level: jobLevel?.position,
     }
   })

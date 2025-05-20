@@ -22,6 +22,9 @@ export const NUSAWORK_JOB_LEVEL_API_URL =
 export const NUSAWORK_SCHEDULE_API_URL =
   process.env.NUSAWORK_SCHEDULE_API_URL ||
   'https://nusawork.com/api/v2/calendar/schedule'
+export const NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX =
+  process.env.NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX ||
+  'https://transit.is5.nusa.net.id/photo-crop/?t='
 
 export const EMPLOYEE_CHART_FILE =
   process.env.EMPLOYEE_CHART_FILE || '/tmp/employee-chart.json'

@@ -1,7 +1,10 @@
 import * as path from 'path'
 import * as fs from 'fs/promises'
 import { fetchNusaworkAuthToken, getAllEmployee, getAllJob } from './nusawork'
-import { EMPLOYEE_CHART_FILE, NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX } from './config'
+import {
+  EMPLOYEE_CHART_FILE,
+  NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX,
+} from './config'
 import logger from './logger'
 
 function transformEmployeeData(employees: any[], jobs: Job[]) {

@@ -16,7 +16,7 @@ const REQUEST_TICKET = 1
 const INCIDENT_TICKET = 2
 
 const HELPDESK_DEPT = new Set(['01', '17', '29', '34'])
-const ENGINEER_DEPT = new Set(['04'])
+const ENGINEER_DEPT = new Set(['04', '34'])
 
 async function processSyncT2T(
   ticketId: number,
@@ -89,18 +89,19 @@ export async function autocloseAssignedTicket(): Promise<void> {
     proceeded.add(TtsId)
     const [rows] = await mysqlDb.query(
       `
-        SELECT e.EmpId, e.DeptId
+        SELECT e.EmpId, e.DeptId, jt.Title AS JobTitle
         FROM TtsPIC tp
         LEFT JOIN Employee e ON tp.EmpId = e.EmpId
+        LEFT JOIN JobTitle jt ON e.JobTitle = jt.Id
         WHERE tp.TtsId = ? AND tp.AssignedNo = ?
         `,
       [TtsId, AssignedNo],
     )
-    const picRows = rows as { EmpId: string; DeptId: string }[]
+    const picRows = rows as { EmpId: string; DeptId: string; JobTitle: string }[]
 
     if (picRows.length === 0) continue
 
-    const { DeptId } = picRows[0]
+    const { DeptId, JobTitle } = picRows[0]
     let gracePeriod: number
 
     let resolver = ''
@@ -200,9 +201,9 @@ export async function autocloseAssignedTicket(): Promise<void> {
           type: 'template',
           template: {
             namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: 'feedback_score_v02',
+            name: 'feedback_score_v03',
             language: { code: 'id' },
-            components: [{ type: 'body', parameters: [] }],
+            components: [{ type: 'body', parameters: [{ type: 'text', text: JobTitle }] }],
           },
         },
         {

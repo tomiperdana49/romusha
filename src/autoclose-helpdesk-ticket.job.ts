@@ -55,10 +55,11 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
 
   const [solvedTickets] = await mysqlDb.query(
     `
-    SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T
+    SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T, jt.Title
     FROM TtsUpdate tu
     LEFT JOIN Tts t ON tu.TtsId = t.TtsId
     LEFT JOIN Employee e ON t.EmpId = e.EmpId
+    LEFT JOIN JobTitle jt ON e.JobTitle = jt.Id
     LEFT JOIN CustomerServices cs on cs.CustServId = t.CustServId
     WHERE t.TtsTypeId IN (?, ?)
       AND t.Status = 'Call'
@@ -81,6 +82,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       AssignedNo,
       VcId,
       contactIdT2T,
+      Title,
     } = ticket
     if (proceeded.has(TtsId)) continue
     proceeded.add(TtsId)
@@ -149,9 +151,9 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
           type: 'template',
           template: {
             namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: 'feedback_score_v02',
+            name: 'feedback_score_v03',
             language: { code: 'id' },
-            components: [{ type: 'body', parameters: [] }],
+            components: [{ type: 'body', parameters: [{ type: 'text', text: Title }] }],
           },
         },
         {

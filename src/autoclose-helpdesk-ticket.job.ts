@@ -47,6 +47,54 @@ async function processSyncT2T(
   }
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function sendWhatsAppWithRetry(
+  destination: string,
+  JobTitle: string,
+  retries = 3,
+): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await axios.post(
+        WHATSAPP_NUSACONTACT_API_URL,
+        {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: destination,
+          type: 'template',
+          template: {
+            namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
+            name: 'feedback_score_v05',
+            language: { code: 'id' },
+            components: [
+              { type: 'body', parameters: [{ type: 'text', text: JobTitle }] },
+            ],
+          },
+        },
+        {
+          headers: {
+            'X-Api-Key': WHATSAPP_NUSACONTACT_API_APIKEY,
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+        },
+      )
+      return // success
+    } catch (err: any) {
+      if (err.response?.status === 429 && attempt < retries) {
+        console.warn(
+          `Rate limit hit for ${destination} (attempt ${attempt}). Waiting 1 seconds...`,
+        )
+        await sleep(1000)
+      } else {
+        throw err
+      }
+    }
+  }
+}
+
 export async function autocloseHelpdeskTicket(): Promise<void> {
   const mysqlDb = initDb()
   if (!mysqlDb) {
@@ -90,7 +138,6 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
     const updatedPlusIgnore = new Date(
       new Date(UpdatedTime).getTime() + GRACEPERIOD_HELPDESK * 1000,
     )
-    if (updatedPlusIgnore > now) continue
 
     // Insert into TtsUpdate
     const [insertResult] = await mysqlDb.query(
@@ -141,28 +188,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
     }
 
     try {
-      // Send WhatsApp feedback
-      await axios.post(
-        WHATSAPP_NUSACONTACT_API_URL,
-        {
-          messaging_product: 'whatsapp',
-          recipient_type: 'individual',
-          to: destination,
-          type: 'template',
-          template: {
-            namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: 'feedback_score_v05',
-            language: { code: 'id' },
-            components: [{ type: 'body', parameters: [{ type: 'text', text: Title }] }],
-          },
-        },
-        {
-          headers: {
-            'X-Api-Key': WHATSAPP_NUSACONTACT_API_APIKEY,
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-        },
-      )
+      await sendWhatsAppWithRetry(destination, Title)
 
       // Save feedback info
       await axios.post(

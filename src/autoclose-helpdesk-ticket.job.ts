@@ -151,7 +151,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
           type: 'template',
           template: {
             namespace: WHATSAPP_NUSACONTACT_API_NAMESPACE,
-            name: 'feedback_score_v04',
+            name: 'feedback_score_v05',
             language: { code: 'id' },
             components: [{ type: 'body', parameters: [{ type: 'text', text: Title }] }],
           },

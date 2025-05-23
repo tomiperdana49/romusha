@@ -10,6 +10,7 @@ import { muteOrphanAlert } from './mute-orphan-alert.job'
 import { autocloseAssignedTicket } from './autoclose-assigned-ticket.job'
 import { autoCloseSurveyTickets } from './autoclose-survey-ticket.job'
 import { autocloseHelpdeskTicket } from './autoclose-helpdesk-ticket.job'
+import { autoCloseEskalasiTickets } from './autoclose-eskalasi-ticket.job'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')
@@ -47,6 +48,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
       break
     case 'autocloseHelpdeskTicket':
       autocloseHelpdeskTicket()
+      break
+    case 'autoCloseEskalasiTickets':
+      autoCloseEskalasiTickets()
       break
 
     default:

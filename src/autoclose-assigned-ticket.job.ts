@@ -15,7 +15,7 @@ import axios from 'axios'
 const REQUEST_TICKET = 1
 const INCIDENT_TICKET = 2
 
-const HELPDESK_DEPT = new Set(['01', '17', '29', '34'])
+const HELPDESK_DEPT = new Set(['01', '17', '29'])
 const ENGINEER_DEPT = new Set(['04', '34'])
 
 async function processSyncT2T(

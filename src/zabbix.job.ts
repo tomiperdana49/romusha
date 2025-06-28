@@ -1,4 +1,4 @@
-import { initDb } from './nis.mysql'
+import { pool as db } from './nis.mysql'
 import { createConnection } from 'mysql2/promise'
 import { Client } from 'pg'
 import {
@@ -76,10 +76,6 @@ function isValidDateFormat(dateString: string) {
 }
 
 export async function syncZabbixData(date: string = 'yesterday') {
-  const db = initDb()
-  if (!db) {
-    throw new Error('MySQL initialization failed')
-  }
   const zbxDb = await createConnection({
     host: ZBX_MYSQL_HOST,
     user: ZBX_MYSQL_USER,

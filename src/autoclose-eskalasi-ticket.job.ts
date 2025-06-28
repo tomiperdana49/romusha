@@ -1,4 +1,4 @@
-import { initDb } from './nis.mysql'
+import { pool as db } from './nis.mysql'
 import axios from 'axios'
 import { SYNC_T2T_API_URL, SYNC_T2T_API_KEY } from './config'
 
@@ -37,9 +37,6 @@ async function processSyncT2T(
   }
 }
 export async function autoCloseEskalasiTickets(): Promise<void> {
-  const db = initDb()
-  if (!db) throw new Error('Failed to initialize DB')
-
   const [rows] = await db.query(
     `
     SELECT tu.TtsId, tu.UpdatedTime, t.CustServId, t.VcId, cs.contactIdT2T

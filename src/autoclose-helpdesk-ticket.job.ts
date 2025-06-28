@@ -1,4 +1,4 @@
-import { initDb } from './nis.mysql'
+import { pool as mysqlDb } from './nis.mysql'
 import {
   WHATSAPP_NUSACONTACT_API_URL,
   WHATSAPP_NUSACONTACT_API_NAMESPACE,
@@ -96,11 +96,6 @@ async function sendWhatsAppWithRetry(
 }
 
 export async function autocloseHelpdeskTicket(): Promise<void> {
-  const mysqlDb = initDb()
-  if (!mysqlDb) {
-    throw new Error('MySQL initialization failed')
-  }
-
   const [solvedTickets] = await mysqlDb.query(
     `
     SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T, jt.Title

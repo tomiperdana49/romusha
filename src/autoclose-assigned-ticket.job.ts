@@ -1,4 +1,4 @@
-import { initDb } from './nis.mysql'
+import { pool as mysqlDb } from './nis.mysql'
 import {
   GRACEPERIOD_HELPDESK,
   GRACEPERIOD_ENGINEER,
@@ -100,11 +100,6 @@ async function sendWhatsAppWithRetry(
 }
 
 export async function autocloseAssignedTicket(): Promise<void> {
-  const mysqlDb = initDb()
-  if (!mysqlDb) {
-    throw new Error('MySQL initialization failed')
-  }
-
   const [solvedTickets] = await mysqlDb.query(
     `
     SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T

@@ -32,7 +32,7 @@ export async function generateEmployeeChart() {
   const token = await fetchNusaworkAuthToken()
   const employees = await getAllEmployee(token)
   const jobs = await getAllJob(token)
-  const chart = await transformEmployeeData(employees, jobs)
+  const chart = transformEmployeeData(employees, jobs)
 
   const tempDir = await fs.mkdtemp(
     path.join(path.dirname(EMPLOYEE_CHART_FILE), 'employee-chart-'),

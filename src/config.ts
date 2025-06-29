@@ -93,3 +93,11 @@ export const WHATSAPP_FEEDBACK_URL = process.env.WHATSAPP_FEEDBACK_URL || ''
 export const WHATSAPP_QUESTION = process.env.WHATSAPP_QUESTION || ''
 export const SYNC_T2T_API_URL = process.env.SYNC_T2T_API_URL || ''
 export const SYNC_T2T_API_KEY = process.env.SYNC_T2T_API_KEY || ''
+
+export const ISSUE_GRACE_PERIOD_SECONDS = Number(
+  process.env.ISSUE_GRACE_PERIOD_SECONDS || 14400,
+)
+export const ISSUE_METRICS_FILE =
+  process.env.ISSUE_METRICS_FILE || './data/issue-metrics.txt'
+export const ISSUE_METRICS_FILE_TEMP =
+  process.env.ISSUE_METRICS_FILE_TEMP || './data/issue-metrics.txt.tmp'

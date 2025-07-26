@@ -1,5 +1,5 @@
 import { connect } from 'nats'
-import { processJob } from './job'
+import { processJob } from './processor'
 import logger from './logger'
 import {
   NATS_SERVERS,

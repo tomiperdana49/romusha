@@ -101,3 +101,8 @@ export const ISSUE_METRICS_FILE =
   process.env.ISSUE_METRICS_FILE || './data/issue-metrics.txt'
 export const ISSUE_METRICS_FILE_TEMP =
   process.env.ISSUE_METRICS_FILE_TEMP || './data/issue-metrics.txt.tmp'
+
+export const FBSTAR_TICKET_API_URL = process.env.FBSTAR_TICKET_API_URL || ''
+export const FBSTAR_TOKEN_API_URL = process.env.FBSTAR_TOKEN_API_URL || ''
+export const FBSTAR_API_USERNAME = process.env.FBSTAR_API_USERNAME || ''
+export const FBSTAR_API_PASSWORD = process.env.FBSTAR_API_PASSWORD || ''

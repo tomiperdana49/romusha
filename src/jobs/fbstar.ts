@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Hashids from 'hashids'
 import { pool } from '../nis.mysql'
 import { sendWaNotif } from '../nusawa'
 import {
@@ -6,6 +7,10 @@ import {
   FBSTAR_API_USERNAME,
   FBSTAR_TICKET_API_URL,
   FBSTAR_TOKEN_API_URL,
+  TICKET_ID_ENCODED_CHARS,
+  TICKET_ID_ENCODED_LENGTH,
+  TICKET_ID_ENCODED_SALT,
+  TICKET_LINK_BASE_URL,
 } from '../config'
 
 async function getToken() {
@@ -122,5 +127,48 @@ export async function notifyAllOverdueTickets(
       `${timeString}, ${diffHours}h ${requestId} ${ticketId} ${status}`,
     )
   })
+  await sendWaNotif(pic, messages.join('\n'))
+}
+
+export async function notifyTicketDetail(requestId: string, pic: string) {
+  const messages: string[] = []
+  const formatter = Intl.DateTimeFormat('en-CA', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+  try {
+    const sql = [
+      'SELECT ft.ticket_id ticketId, fvt.ticket_id ttsId, ft.data',
+      'FROM fbstar_tickets ft',
+      'LEFT JOIN FiberVendorTickets fvt',
+      'ON ft.request_id = fvt.vendor_ticket_number',
+      'WHERE ft.request_id = ?',
+    ].join(' ')
+    const [rows] = (await pool.execute(sql, [requestId])) as any[]
+    const [{ ticketId, ttsId, data }] = rows
+    const hashids = new Hashids(
+      TICKET_ID_ENCODED_SALT,
+      TICKET_ID_ENCODED_LENGTH,
+      TICKET_ID_ENCODED_CHARS,
+    )
+    const encodedTicketId = hashids.encode(ttsId)
+    const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`
+    const ticketData = JSON.parse(data)
+    const history = ticketData.ticketHistory as any[]
+    messages.push(`${requestId} ${ticketId}`)
+    history.forEach(({ processedAt, picDept, picPerson, status }) => {
+      const formattedTime = formatter
+        .format(new Date(processedAt))
+        .replace(',', '')
+      messages.push(` - ${formattedTime}, ${status} - ${picDept} ${picPerson}`)
+    })
+    messages.push(ticketIdLink)
+  } catch (error) {
+    console.error(error)
+  }
+  if (!messages) return
   await sendWaNotif(pic, messages.join('\n'))
 }

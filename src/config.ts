@@ -106,3 +106,13 @@ export const FBSTAR_TICKET_API_URL = process.env.FBSTAR_TICKET_API_URL || ''
 export const FBSTAR_TOKEN_API_URL = process.env.FBSTAR_TOKEN_API_URL || ''
 export const FBSTAR_API_USERNAME = process.env.FBSTAR_API_USERNAME || ''
 export const FBSTAR_API_PASSWORD = process.env.FBSTAR_API_PASSWORD || ''
+
+export const TICKET_LINK_BASE_URL =
+  process.env.TICKET_LINK_BASE_URL || 'http://localhost:3000/ticket'
+export const TICKET_ID_ENCODED_LENGTH = Number(
+  process.env.TICKET_ID_LENGTH || 8,
+)
+export const TICKET_ID_ENCODED_CHARS =
+  process.env.TICKET_ID_ENCODED_CHARS || 'abcdefghijklmnopqrstuvwxyz'
+export const TICKET_ID_ENCODED_SALT =
+  process.env.TICKET_ID_ENCODED_SALT || 'xxxxxxxx'

@@ -15,6 +15,7 @@ import { autoCloseNocTickets } from './autoclose-noc-ticket.job'
 import { generateOutdatedIssueMetrics } from './issue.job'
 import {
   notifyAllOverdueTickets as notifyAllOverdueFbstarTickets,
+  notifyTicketDetail as notifyFbstarTicketDetail,
   syncTickets as syncFbstarTickets,
 } from './jobs/fbstar'
 
@@ -24,6 +25,10 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
   logger.info(`executing job: ${jobName}`)
 
   switch (jobName) {
+    case 'notifyFbstarTicketDetail':
+      const requestId = subjectParts[3]
+      notifyFbstarTicketDetail(requestId, subjectParts.slice(4).join('.'))
+      break
     case 'notifyAllOverdueFbstarTickets':
       const pic = subjectParts.slice(3).join('.')
       notifyAllOverdueFbstarTickets(pic)

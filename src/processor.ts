@@ -30,8 +30,7 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
       notifyFbstarTicketDetail(requestId, subjectParts.slice(4).join('.'))
       break
     case 'notifyAllOverdueFbstarTickets':
-      const pic = subjectParts.slice(3).join('.')
-      notifyAllOverdueFbstarTickets(pic)
+      notifyAllOverdueFbstarTickets(subjectParts.slice(3).join('.'))
       break
     case 'syncFbstarTickets':
       syncFbstarTickets()

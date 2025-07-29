@@ -110,7 +110,6 @@ export async function notifyAllOverdueTickets(
 ) {
   const tickets = (await getAllOverdueTickets(thresholdHours)) as any[]
   const formatter = Intl.DateTimeFormat('en-CA', {
-    year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',

@@ -13,6 +13,12 @@ import {
   TICKET_LINK_BASE_URL,
 } from '../config'
 
+const hashids = new Hashids(
+  TICKET_ID_ENCODED_SALT,
+  TICKET_ID_ENCODED_LENGTH,
+  TICKET_ID_ENCODED_CHARS,
+)
+
 async function getToken() {
   try {
     const response = await axios.post(
@@ -76,7 +82,8 @@ async function getAllActiveTickets() {
   try {
     const sql = [
       'SELECT fvt.vendor_ticket_number requestId, ft.ticket_id ticketId,',
-      'fvt.vendor_ticket_status status, fvt.insert_time submitTime',
+      'fvt.vendor_ticket_status status, fvt.insert_time submitTime,',
+      'ft.data, t.TtsId ttsId',
       'FROM FiberVendorTickets fvt',
       'LEFT JOIN Tts t ON t.TtsId = fvt.ticket_id',
       'LEFT JOIN fbstar_tickets ft ON fvt.vendor_ticket_number = ft.request_id',
@@ -118,14 +125,34 @@ export async function notifyAllOverdueTickets(
   })
   const now = new Date()
   const messages: string[] = []
-  tickets.forEach(({ submitTime, requestId, ticketId, status }) => {
-    const timeString = formatter.format(submitTime).replace(',', '')
-    const diffMs = +now - +submitTime
-    const diffHours = Math.floor(diffMs / 1000 / 60 / 60)
-    messages.push(
-      `${timeString}, ${diffHours}h ${requestId} ${ticketId} ${status}`,
-    )
-  })
+  tickets.forEach(
+    ({ submitTime, requestId, ticketId, status, data, ttsId }) => {
+      const timeString = formatter.format(submitTime).replace(',', '')
+      const diffMs = +now - +submitTime
+      const diffHours = Math.floor(diffMs / 1000 / 60 / 60)
+      messages.push(
+        `> ${timeString}, ${diffHours}h ${requestId} ${ticketId} ${status}`,
+      )
+      const encodedTicketId = hashids.encode(ttsId)
+      const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`
+      try {
+        const ticketData = JSON.parse(data)
+        const history = ticketData.ticketHistory as any[]
+        history.forEach(({ processedAt, picDept, picPerson, status }) => {
+          const formattedTime = formatter
+            .format(new Date(processedAt))
+            .replace(',', '')
+          messages.push(
+            `- ${formattedTime}, ${status} - ${picDept} ${picPerson}`,
+          )
+        })
+      } catch (error) {
+        console.error(error)
+      }
+      messages.push(ticketIdLink)
+    },
+  )
+  if (!messages) return
   await sendWaNotif(pic, messages.join('\n'))
 }
 
@@ -148,22 +175,21 @@ export async function notifyTicketDetail(requestId: string, pic: string) {
     ].join(' ')
     const [rows] = (await pool.execute(sql, [requestId])) as any[]
     const [{ ticketId, ttsId, data }] = rows
-    const hashids = new Hashids(
-      TICKET_ID_ENCODED_SALT,
-      TICKET_ID_ENCODED_LENGTH,
-      TICKET_ID_ENCODED_CHARS,
-    )
     const encodedTicketId = hashids.encode(ttsId)
     const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`
-    const ticketData = JSON.parse(data)
-    const history = ticketData.ticketHistory as any[]
-    messages.push(`${requestId} ${ticketId}`)
-    history.forEach(({ processedAt, picDept, picPerson, status }) => {
-      const formattedTime = formatter
-        .format(new Date(processedAt))
-        .replace(',', '')
-      messages.push(` - ${formattedTime}, ${status} - ${picDept} ${picPerson}`)
-    })
+    try {
+      const ticketData = JSON.parse(data)
+      const history = ticketData.ticketHistory as any[]
+      messages.push(`${requestId} ${ticketId}`)
+      history.forEach(({ processedAt, picDept, picPerson, status }) => {
+        const formattedTime = formatter
+          .format(new Date(processedAt))
+          .replace(',', '')
+        messages.push(`- ${formattedTime}, ${status} - ${picDept} ${picPerson}`)
+      })
+    } catch (error) {
+      console.error(error)
+    }
     messages.push(ticketIdLink)
   } catch (error) {
     console.error(error)

@@ -135,6 +135,7 @@ export async function notifyAllOverdueTickets(
       )
       const encodedTicketId = hashids.encode(ttsId)
       const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`
+      messages.push(ticketIdLink)
       try {
         const ticketData = JSON.parse(data)
         const history = ticketData.ticketHistory as any[]
@@ -149,7 +150,6 @@ export async function notifyAllOverdueTickets(
       } catch (error) {
         console.error(error)
       }
-      messages.push(ticketIdLink)
     },
   )
   if (!messages) return
@@ -177,10 +177,11 @@ export async function notifyTicketDetail(requestId: string, pic: string) {
     const [{ ticketId, ttsId, data }] = rows
     const encodedTicketId = hashids.encode(ttsId)
     const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`
+    messages.push(`${requestId} ${ticketId}`)
+    messages.push(ticketIdLink)
     try {
       const ticketData = JSON.parse(data)
       const history = ticketData.ticketHistory as any[]
-      messages.push(`${requestId} ${ticketId}`)
       history.forEach(({ processedAt, picDept, picPerson, status }) => {
         const formattedTime = formatter
           .format(new Date(processedAt))
@@ -190,7 +191,6 @@ export async function notifyTicketDetail(requestId: string, pic: string) {
     } catch (error) {
       console.error(error)
     }
-    messages.push(ticketIdLink)
   } catch (error) {
     console.error(error)
   }

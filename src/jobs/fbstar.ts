@@ -49,24 +49,29 @@ export async function syncTickets() {
       const url = `${FBSTAR_TICKET_API_URL}/${requestId}`
       const response = await axios.get(url, { headers })
       const { requestedAt, ...data } = response.data
-      const ticketId = data.ticketNumber
       const sql = [
         'UPDATE fbstar_tickets SET',
-        'ticket_id = ?, data = ?, updated_at = NOW()',
+        'ticket_id = ?, category = ?, data = ?, updated_at = NOW()',
         'WHERE request_id = ?',
       ].join(' ')
       const [result] = (await pool.execute(sql, [
-        ticketId,
+        data.ticketNumber,
+        data.category,
         JSON.stringify(data),
         requestId,
       ])) as any[]
       if (result.affectedRows == 0) {
         const sql = [
           'INSERT INTO fbstar_tickets SET',
-          'request_id = ?, ticket_id = ?, data = ?,',
+          'request_id = ?, ticket_id = ?, category = ?, data = ?,',
           'created_at = NOW(), updated_at = NOW()',
         ].join(' ')
-        await pool.execute(sql, [requestId, ticketId, JSON.stringify(data)])
+        await pool.execute(sql, [
+          requestId,
+          data.ticketNumber,
+          data.category,
+          JSON.stringify(data),
+        ])
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -83,7 +88,7 @@ async function getAllActiveTickets() {
     const sql = [
       'SELECT fvt.vendor_ticket_number requestId, ft.ticket_id ticketId,',
       'fvt.vendor_ticket_status status, fvt.insert_time submitTime,',
-      'ft.data, t.TtsId ttsId',
+      'ft.data, t.TtsId ttsId, ft.category',
       'FROM FiberVendorTickets fvt',
       'LEFT JOIN Tts t ON t.TtsId = fvt.ticket_id',
       'LEFT JOIN fbstar_tickets ft ON fvt.vendor_ticket_number = ft.request_id',
@@ -126,12 +131,12 @@ export async function notifyAllOverdueTickets(
   const now = new Date()
   const messages: string[] = []
   tickets.forEach(
-    ({ submitTime, requestId, ticketId, status, data, ttsId }) => {
+    ({ submitTime, requestId, ticketId, category, data, ttsId }) => {
       const timeString = formatter.format(submitTime).replace(',', '')
       const diffMs = +now - +submitTime
       const diffHours = Math.floor(diffMs / 1000 / 60 / 60)
       messages.push(
-        `> ${timeString}, ${diffHours}h ${requestId} ${ticketId} ${status}`,
+        `> ${timeString}, ${diffHours}h ${requestId} ${ticketId} ${category}`,
       )
       const encodedTicketId = hashids.encode(ttsId)
       const ticketIdLink = `${TICKET_LINK_BASE_URL}/?id=${encodedTicketId}`

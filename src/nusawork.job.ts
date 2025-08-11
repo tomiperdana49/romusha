@@ -1,16 +1,11 @@
 import { EMPLOYEE_ON_DUTY_NOTIF_PIC_PHONES } from './config'
-import {
-  fetchNusaworkAuthToken,
-  getAllEmployee,
-  getEmployeeSchedule,
-} from './nusawork'
+import { getAllEmployee, getEmployeeSchedule } from './nusawork'
 import { sendWaNotif } from './nusawa'
 
 export async function sendEmployeeOnDutyNotif() {
   const nextSunday = getNextSunday()
   const recipients = JSON.parse(EMPLOYEE_ON_DUTY_NOTIF_PIC_PHONES) as string[]
-  const token = await fetchNusaworkAuthToken()
-  const schedules = await getEmployeeSchedule(token, nextSunday)
+  const schedules = await getEmployeeSchedule(nextSunday)
   const employeeOnDutySchedule = schedules.find((schedule: any) => {
     return (
       schedule.shift_name === 'Manager On Duty' ||
@@ -22,7 +17,7 @@ export async function sendEmployeeOnDutyNotif() {
     ' ' +
     employeeOnDutySchedule.date +
     `\n*${employeeOnDutySchedule.name.trim()}*`
-  const employees = await getAllEmployee(token)
+  const employees = await getAllEmployee()
   const employeeOnDuty = employees.find((employee: any) => {
     return employee.user_id == employeeOnDutySchedule.user_id
   })

@@ -1,18 +1,18 @@
 import * as path from 'path'
 import * as fs from 'fs/promises'
-import { fetchNusaworkAuthToken, getAllEmployee, getAllJob } from './nusawork'
+import { getAllEmployee, getAllJobLevel } from './nusawork'
 import {
   EMPLOYEE_CHART_FILE,
   NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX,
 } from './config'
 import logger from './logger'
 
-function transformEmployeeData(employees: any[], jobs: Job[]) {
+function transformEmployeeData(employees: any[], jobLevels: any[]) {
   return employees.map((employee: any) => {
     const reportTo = employees.find(
       (e) => e.user_id == employee.id_report_to_value,
     )
-    const jobLevel = jobs.find((j) => j.name == employee.job_level)
+    const jobLevel = jobLevels.find((j) => j.name == employee.job_level)
     return {
       IDEmployee: employee.employee_id,
       Nama: employee.full_name.trim(),
@@ -29,10 +29,9 @@ function transformEmployeeData(employees: any[], jobs: Job[]) {
 }
 
 export async function generateEmployeeChart() {
-  const token = await fetchNusaworkAuthToken()
-  const employees = await getAllEmployee(token)
-  const jobs = await getAllJob(token)
-  const chart = transformEmployeeData(employees, jobs)
+  const employees = await getAllEmployee()
+  const jobLevels = await getAllJobLevel()
+  const chart = transformEmployeeData(employees, jobLevels)
 
   const tempDir = await fs.mkdtemp(
     path.join(path.dirname(EMPLOYEE_CHART_FILE), 'employee-chart-'),
@@ -54,10 +53,4 @@ export async function generateEmployeeChart() {
       )
     }
   }
-}
-
-export interface Job {
-  id: number
-  name: string
-  position: number
 }

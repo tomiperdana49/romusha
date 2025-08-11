@@ -6,13 +6,6 @@ export const MIN_BACKOFF_DELAY_SECONDS =
   process.env.MIN_BACKOFF_DELAY_SECONDS || 1
 export const MAX_BACKOFF_DELAY_SECONDS =
   process.env.MAX_BACKOFF_DELAY_SECONDS || 32
-export const NUSAWORK_AUTH_TOKEN_API_URL =
-  process.env.NUSAWORK_AUTH_TOKEN_API_URL || 'https://nusawork.com/api/token'
-export const NUSAWORK_AUTH_TOKEN_API_KEY =
-  process.env.NUSAWORK_AUTH_TOKEN_API_KEY || ''
-export const NUSAWORK_EMPLOYEE_API_URL =
-  process.env.NUSAWORK_EMPLOYEE_API_URL ||
-  'https://nusawork.com/api/v4.1/employee/filter'
 export const NUSAWORK_EMPLOYEE_API_V2_URL =
   process.env.NUSAWORK_EMPLOYEE_API_V2_URL ||
   'https://nusawork.com/api/v4.2/client/employee/filter'
@@ -25,6 +18,18 @@ export const NUSAWORK_SCHEDULE_API_URL =
 export const NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX =
   process.env.NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX ||
   'https://transit.is5.nusa.net.id/photo-crop/?t='
+export const NUSAWORK_AUTH_REFRESH_MARGIN = Number(
+  process.env.NUSAWORK_AUTH_REFRESH_MARGIN || 3600,
+)
+export const NUSAWORK_AUTH_API_URL =
+  process.env.NUSAWORK_AUTH_TOKEN_API_URL || 'https://nusawork.com/api/auth'
+export const NUSAWORK_AUTH_GRANT_TYPE =
+  process.env.NUSAWORK_AUTH_GRANT_TYPE || 'client_credentials'
+export const NUSAWORK_AUTH_CLIENT_ID = Number(
+  process.env.NUSAWORK_AUTH_CLIENT_ID || 3,
+)
+export const NUSAWORK_AUTH_CLIENT_SECRET =
+  process.env.NUSAWORK_AUTH_CLIENT_SECRET || 'xxxxxxxxxxxxxxxx'
 
 export const EMPLOYEE_CHART_FILE =
   process.env.EMPLOYEE_CHART_FILE || '/tmp/employee-chart.json'

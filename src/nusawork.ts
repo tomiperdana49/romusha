@@ -1,37 +1,56 @@
 import axios from 'axios'
 import {
-  NUSAWORK_AUTH_TOKEN_API_KEY,
-  NUSAWORK_AUTH_TOKEN_API_URL,
-  NUSAWORK_EMPLOYEE_API_URL,
   NUSAWORK_EMPLOYEE_API_V2_URL,
   NUSAWORK_JOB_LEVEL_API_URL,
   NUSAWORK_SCHEDULE_API_URL,
+  NUSAWORK_AUTH_REFRESH_MARGIN,
+  NUSAWORK_AUTH_API_URL,
+  NUSAWORK_AUTH_GRANT_TYPE,
+  NUSAWORK_AUTH_CLIENT_ID,
+  NUSAWORK_AUTH_CLIENT_SECRET,
 } from './config'
 import logger from './logger'
 
-export async function fetchNusaworkAuthToken(): Promise<string> {
-  const response = await axios.get<{ token: string }>(
-    NUSAWORK_AUTH_TOKEN_API_URL,
-    {
-      headers: { 'X-Api-Key': NUSAWORK_AUTH_TOKEN_API_KEY },
-    },
-  )
-  return response.data.token
+let cachedToken: null | string = null
+let tokenExpiryTime: null | number = null
+
+async function getAuthToken(): Promise<null | string> {
+  const now = Math.floor(Date.now() / 1000)
+  if (
+    cachedToken &&
+    tokenExpiryTime &&
+    now < tokenExpiryTime - NUSAWORK_AUTH_REFRESH_MARGIN
+  ) {
+    return cachedToken
+  }
+  try {
+    const response = await axios.post(NUSAWORK_AUTH_API_URL, {
+      grant_type: NUSAWORK_AUTH_GRANT_TYPE,
+      client_id: NUSAWORK_AUTH_CLIENT_ID,
+      client_secret: NUSAWORK_AUTH_CLIENT_SECRET,
+    })
+    cachedToken = response.data.access_token as string
+    tokenExpiryTime = now + Number(response.data.expires_in)
+  } catch (error) {
+    logger.error('Error fetching auth token: ', error)
+  }
+  return cachedToken
 }
 
-export async function getAllEmployee(token: string) {
-  const today = new Date()
-  const yyyy = today.getFullYear()
-  const mm = String(today.getMonth() + 1).padStart(2, '0')
-  const dd = String(today.getDate()).padStart(2, '0')
-  const formatedToday = `${yyyy}-${mm}-${dd}`
+export async function getAllEmployee() {
+  const token = await getAuthToken()
+  const formattedToday = Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(Date.now())
 
   const payload = {
     fields: {
       active_status: ['active'],
     },
     paginate: false,
-    periods: [formatedToday, formatedToday],
+    periods: [formattedToday, formattedToday],
   }
 
   try {
@@ -42,43 +61,51 @@ export async function getAllEmployee(token: string) {
       },
     })
     return response.data.data
-  } catch (error: any) {
-    logger.error(`Error get all employee: ${error.message}`)
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      cachedToken = null
+    }
+    logger.error(`Error get all employee: ${(error as Error).message}`)
   }
 }
 
-export async function getEmployeeSchedule(token: string, date: Date) {
-  const formatter = new Intl.DateTimeFormat('en-CA', {
+export async function getEmployeeSchedule(date: Date) {
+  const token = await getAuthToken()
+  const formattedDate = Intl.DateTimeFormat('en-CA', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  })
-  const formattedDate = formatter.format(date).replaceAll('/', '-')
+  }).format(date)
   const params = { type: 'day', date: formattedDate }
   try {
     const response = await axios.get(NUSAWORK_SCHEDULE_API_URL, {
       params,
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
     })
     return response.data.data
-  } catch (error: any) {
-    logger.error(`Error get schedule: ${error.message}`)
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      cachedToken = null
+    }
+    logger.error(`Error get schedule: ${(error as Error).message}`)
   }
 }
 
-export async function getAllJob(token: string) {
+export async function getAllJobLevel() {
+  const token = await getAuthToken()
   try {
     const response = await axios.get(NUSAWORK_JOB_LEVEL_API_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
     })
     return response.data.data
-  } catch (error: any) {
-    logger.error(`Error get all job: ${error.message}`)
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      cachedToken = null
+    }
+    logger.error(`Error get all job: ${(error as Error).message}`)
   }
 }

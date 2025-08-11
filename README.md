@@ -40,9 +40,6 @@ The worker can be configured using the following environment variables:
 *   `NATS_CONSUMER`: NATS consumer name (default: `romusha`)
 *   `MIN_BACKOFF_DELAY_SECONDS`: Minimum backoff delay in seconds (default: `1`)
 *   `MAX_BACKOFF_DELAY_SECONDS`: Maximum backoff delay in seconds (default: `32`)
-*   `NUSAWORK_AUTH_TOKEN_API_URL`: Nusawork auth token API URL
-*   `NUSAWORK_AUTH_TOKEN_API_KEY`: Nusawork auth token API key
-*   `NUSAWORK_EMPLOYEE_API_URL`: Nusawork employee API URL
 *   `NUSAWORK_EMPLOYEE_API_V2_URL`: Nusawork employee API v2 URL
 *   `NUSAWORK_JOB_LEVEL_API_URL`: Nusawork job level API URL
 *   `NUSAWORK_SCHEDULE_API_URL`: Nusawork schedule API URL

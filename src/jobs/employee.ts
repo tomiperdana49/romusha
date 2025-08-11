@@ -1,11 +1,11 @@
 import * as path from 'path'
 import * as fs from 'fs/promises'
-import { getAllEmployee, getAllJobLevel } from './nusawork'
+import { getAllEmployee, getAllJobLevel } from '../nusawork'
 import {
   EMPLOYEE_CHART_FILE,
   NUSAWORK_EMPLOYEE_PHOTO_URL_PREFIX,
-} from './config'
-import logger from './logger'
+} from '../config'
+import logger from '../logger'
 
 function transformEmployeeData(employees: any[], jobLevels: any[]) {
   return employees.map((employee: any) => {

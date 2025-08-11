@@ -1,5 +1,5 @@
 import { type JsMsg, type NatsConnection } from 'nats'
-import { generateEmployeeChart } from './employee.job'
+import { generateEmployeeChart } from './jobs/employee'
 import logger from './logger'
 import { sendEmployeeOnDutyNotif } from './nusawork.job'
 import { syncFttxMonitor } from './fttx.job'

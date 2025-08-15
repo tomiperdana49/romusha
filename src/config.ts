@@ -111,6 +111,11 @@ export const FBSTAR_TICKET_API_URL = process.env.FBSTAR_TICKET_API_URL || ''
 export const FBSTAR_TOKEN_API_URL = process.env.FBSTAR_TOKEN_API_URL || ''
 export const FBSTAR_API_USERNAME = process.env.FBSTAR_API_USERNAME || ''
 export const FBSTAR_API_PASSWORD = process.env.FBSTAR_API_PASSWORD || ''
+export const FBSTAR_TICKET_METRICS_FILE =
+  process.env.FBSTAR_TICKET_METRICS_FILE || './data/fbstar-ticket-metrics.txt'
+export const FBSTAR_TICKET_METRICS_FILE_TEMP =
+  process.env.FBSTAR_TICKET_METRICS_FILE_TEMP ||
+  './data/fbstar-ticket-metrics.txt.tmp'
 
 export const TICKET_LINK_BASE_URL =
   process.env.TICKET_LINK_BASE_URL || 'http://localhost:3000/ticket'

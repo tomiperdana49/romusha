@@ -6,12 +6,15 @@ import {
   FBSTAR_API_PASSWORD,
   FBSTAR_API_USERNAME,
   FBSTAR_TICKET_API_URL,
+  FBSTAR_TICKET_METRICS_FILE,
+  FBSTAR_TICKET_METRICS_FILE_TEMP,
   FBSTAR_TOKEN_API_URL,
   TICKET_ID_ENCODED_CHARS,
   TICKET_ID_ENCODED_LENGTH,
   TICKET_ID_ENCODED_SALT,
   TICKET_LINK_BASE_URL,
 } from '../config'
+import { writeMetricsFile } from '../metrics'
 
 const hashids = new Hashids(
   TICKET_ID_ENCODED_SALT,
@@ -40,15 +43,39 @@ async function getToken() {
 }
 
 export async function syncTickets() {
+  const metricName = 'ticket_request_timestamp'
+  const metricLines: string[] = []
   const tickets = (await getAllActiveTickets()) as any[]
   const token = await getToken()
   const headers = { Authorization: `Bearer ${token}` }
-  for (const { requestId, status } of tickets) {
+  for (const { requestId, ticketId, status, category, submitTime } of tickets) {
     if (status === 'Closed') continue
+    const submitDatetime = new Date(submitTime)
+    const metricLabels: any = {
+      requestNumber: requestId,
+      ticketNumber: ticketId || '',
+      category,
+      status,
+      link: 'fs',
+      since: Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+        .format(submitDatetime)
+        .replace(',', ''),
+    }
+    const metricValue = Math.floor(submitDatetime.getTime() / 1000)
     try {
       const url = `${FBSTAR_TICKET_API_URL}/${requestId}`
       const response = await axios.get(url, { headers })
       const { requestedAt, ...data } = response.data
+      metricLabels.ticketNumber = data.ticketNumber
+      metricLabels.category = data.category
+      metricLabels.status = data.ticketHistory.at(-1).status
       const sql = [
         'UPDATE fbstar_tickets SET',
         'ticket_id = ?, category = ?, data = ?, updated_at = NOW()',
@@ -80,7 +107,17 @@ export async function syncTickets() {
         console.error('Unexpected error:', error)
       }
     }
+    const labelsParts = []
+    for (const key in metricLabels) {
+      labelsParts.push(`${key}="${metricLabels[key]}"`)
+    }
+    metricLines.push(`${metricName}{${labelsParts.join(',')}} ${metricValue}`)
   }
+  await writeMetricsFile(
+    metricLines,
+    FBSTAR_TICKET_METRICS_FILE,
+    FBSTAR_TICKET_METRICS_FILE_TEMP,
+  )
 }
 
 async function getAllActiveTickets() {

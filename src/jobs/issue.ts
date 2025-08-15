@@ -1,12 +1,10 @@
-import fs from 'fs/promises'
-import path from 'path'
 import { pool } from '../nis.mysql'
 import {
   ISSUE_GRACE_PERIOD_SECONDS,
   ISSUE_METRICS_FILE,
   ISSUE_METRICS_FILE_TEMP,
 } from '../config'
-import logger from '../logger'
+import { writeMetricsFile } from '../metrics'
 
 export async function getOutdatedIssue() {
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -61,21 +59,6 @@ export async function getOutdatedIssue() {
     return outdatedIssues
   } catch {
     return []
-  }
-}
-
-async function writeMetricsFile(
-  metricLines: string[],
-  fileName: string,
-  fileNameTemp: string,
-) {
-  try {
-    const dir = path.dirname(fileNameTemp)
-    await fs.mkdir(dir, { recursive: true })
-    await fs.writeFile(fileNameTemp, metricLines.join('\n') + '\n')
-    await fs.rename(fileNameTemp, fileName)
-  } catch (err) {
-    logger.error('Error writing metrics to file:', err)
   }
 }
 

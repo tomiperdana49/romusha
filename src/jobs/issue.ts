@@ -1,12 +1,12 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { pool } from './nis.mysql'
+import { pool } from '../nis.mysql'
 import {
   ISSUE_GRACE_PERIOD_SECONDS,
   ISSUE_METRICS_FILE,
   ISSUE_METRICS_FILE_TEMP,
-} from './config'
-import logger from './logger'
+} from '../config'
+import logger from '../logger'
 
 export async function getOutdatedIssue() {
   const currentTimestamp = Math.floor(Date.now() / 1000)

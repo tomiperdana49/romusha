@@ -11,7 +11,7 @@ import { autoCloseSurveyTickets } from './autoclose-survey-ticket.job'
 import { autocloseHelpdeskTicket } from './autoclose-helpdesk-ticket.job'
 import { autoCloseEskalasiTickets } from './autoclose-eskalasi-ticket.job'
 import { autoCloseNocTickets } from './autoclose-noc-ticket.job'
-import { generateOutdatedIssueMetrics } from './issue.job'
+import { generateOutdatedIssueMetrics } from './jobs/issue'
 import {
   notifyAllOverdueTickets as notifyAllOverdueFbstarTickets,
   notifyTicketDetail as notifyFbstarTicketDetail,

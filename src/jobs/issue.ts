@@ -16,13 +16,14 @@ export async function getOutdatedIssue() {
     const issueSql = [
       'SELECT id, subject, status FROM noc',
       'WHERE UNIX_TIMESTAMP(datetime) < ?',
-      'AND NOT(status IN (?, ?, ?))',
+      'AND NOT(status IN (?, ?, ?, ?))',
     ].join(' ')
     const [issueRows] = await pool.query(issueSql, [
       timeThreshold,
       '',
       'Close',
       'Cancel',
+      'Scheduled',
     ])
 
     for (const { id, subject, status } of issueRows as any[]) {

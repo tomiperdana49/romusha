@@ -53,8 +53,8 @@ export async function syncTickets() {
     const submitDatetime = new Date(submitTime)
     const metricLabels: any = {
       requestNumber: requestId,
-      ticketNumber: ticketId || '',
-      category,
+      ticketNumber: ticketId || 'none',
+      category: category || 'none',
       status,
       link: 'fs',
       since: Intl.DateTimeFormat('en-CA', {

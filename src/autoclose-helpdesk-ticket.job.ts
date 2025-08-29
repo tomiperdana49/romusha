@@ -133,6 +133,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
     const updatedPlusIgnore = new Date(
       new Date(UpdatedTime).getTime() + GRACEPERIOD_HELPDESK * 1000,
     )
+    if (updatedPlusIgnore > now) continue
 
     // Insert into TtsUpdate
     const [insertResult] = await mysqlDb.query(

@@ -129,7 +129,7 @@ async function getAllActiveTickets() {
       'FROM FiberVendorTickets fvt',
       'LEFT JOIN Tts t ON t.TtsId = fvt.ticket_id',
       'LEFT JOIN fbstar_tickets ft ON fvt.vendor_ticket_number = ft.request_id',
-      'WHERE NOT (t.Status IN ("Closed", "Cancel", "Pending"))',
+      'WHERE NOT (t.Status IN ("Closed", "Cancel", "Pending", "Call"))',
       'ORDER BY fvt.insert_time',
     ].join(' ')
     const [rows] = await pool.execute(sql)

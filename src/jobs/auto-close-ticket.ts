@@ -272,6 +272,7 @@ export async function autoCloseEskalasiTickets(): Promise<void> {
 export async function autocloseHelpdeskTicket(): Promise<void> {
   const REQUEST_TICKET = 1
   const INCIDENT_TICKET = 2
+  const MONITORING_TICKET = 6
   const [solvedTickets] = await mysqlDb.query(
     `
     SELECT tu.TtsId, tu.UpdatedTime, t.TtsTypeId, t.CustId, t.AssignedNo, t.VcId, cs.contactIdT2T, jt.Title
@@ -286,7 +287,7 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
       AND IFNULL(e.DisplayBranchId, e.BranchId) IN ('020')
     ORDER BY tu.TtsId, tu.UpdatedTime DESC
     `,
-    [REQUEST_TICKET, INCIDENT_TICKET],
+    [REQUEST_TICKET, INCIDENT_TICKET, MONITORING_TICKET],
   )
 
   const proceeded = new Set()
@@ -360,14 +361,16 @@ export async function autocloseHelpdeskTicket(): Promise<void> {
     }
 
     try {
-      sendWhatsAppFeedbackScore(destination, Title)
-      saveFeedbackSendInfo(
-        destination,
-        CustId,
-        TtsId,
-        insertedUpdateId,
-        AssignedNo,
-      )
+      if (TtsTypeId !== MONITORING_TICKET) {
+        sendWhatsAppFeedbackScore(destination, Title)
+        saveFeedbackSendInfo(
+          destination,
+          CustId,
+          TtsId,
+          insertedUpdateId,
+          AssignedNo,
+        )
+      }
 
       // Call Sync T2T
       if (VcId) {

@@ -6,12 +6,14 @@ import { notifyKarmaAlerts } from './alert.job'
 import { collectAndPublishPPPoEData } from './pppoe.job'
 import { syncZabbixData } from './zabbix.job'
 import { muteOrphanAlert } from './mute-orphan-alert.job'
-import { autocloseAssignedTicket } from './autoclose-assigned-ticket.job'
-import { autoCloseSurveyTickets } from './autoclose-survey-ticket.job'
-import { autocloseHelpdeskTicket } from './autoclose-helpdesk-ticket.job'
-import { autoCloseEskalasiTickets } from './autoclose-eskalasi-ticket.job'
-import { autoCloseNocTickets } from './autoclose-noc-ticket.job'
 import { generateOutdatedIssueMetrics } from './jobs/issue'
+import {
+  autocloseAssignedTicket,
+  autoCloseEskalasiTickets,
+  autocloseHelpdeskTicket,
+  autoCloseNocTickets,
+  autoCloseSurveyTickets,
+} from './jobs/auto-close-ticket'
 import {
   notifyAllOverdueTickets as notifyAllOverdueFbstarTickets,
   notifyTicketDetail as notifyFbstarTicketDetail,

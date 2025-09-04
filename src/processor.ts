@@ -13,6 +13,7 @@ import {
   autocloseHelpdeskTicket,
   autoCloseNocTickets,
   autoCloseSurveyTickets,
+  autoCloseMonitoringTickets,
 } from './jobs/auto-close-ticket'
 import {
   notifyAllOverdueTickets as notifyAllOverdueFbstarTickets,
@@ -78,6 +79,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
       break
     case 'autoCloseNocTickets':
       autoCloseNocTickets()
+      break
+    case 'autoCloseMonitoringTickets':
+      autoCloseMonitoringTickets()
       break
 
     default:

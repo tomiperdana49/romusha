@@ -126,3 +126,9 @@ export const TICKET_ID_ENCODED_CHARS =
   process.env.TICKET_ID_ENCODED_CHARS || 'abcdefghijklmnopqrstuvwxyz'
 export const TICKET_ID_ENCODED_SALT =
   process.env.TICKET_ID_ENCODED_SALT || 'xxxxxxxx'
+
+export const ONLINE_TICKET_METRICS_FILE =
+  process.env.ONLINE_TICKET_METRICS_FILE || './data/online-ticket-metrics.txt'
+export const ONLINE_TICKET_METRICS_FILE_TEMP =
+  process.env.ONLINE_TICKET_METRICS_FILE_TEMP ||
+  './data/online-ticket-metrics.txt.tmp'

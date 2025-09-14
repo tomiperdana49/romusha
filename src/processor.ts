@@ -20,6 +20,7 @@ import {
   notifyTicketDetail as notifyFbstarTicketDetail,
   syncTickets as syncFbstarTickets,
 } from './jobs/fbstar'
+import { exportOnlinePppoeTicketMetrics } from './jobs/ticket'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')
@@ -27,6 +28,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
   logger.info(`executing job: ${jobName}`)
 
   switch (jobName) {
+    case 'exportOnlinePppoeTicketMetrics':
+      exportOnlinePppoeTicketMetrics()
+      break
     case 'notifyFbstarTicketDetail':
       const requestId = subjectParts[3]
       notifyFbstarTicketDetail(requestId, subjectParts.slice(4).join('.'))

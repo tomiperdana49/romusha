@@ -48,10 +48,18 @@ export async function syncTickets() {
   const tickets = (await getAllActiveTickets()) as any[]
   const token = await getToken()
   const headers = { Authorization: `Bearer ${token}` }
-  for (const { requestId, ticketId, status, category, submitTime } of tickets) {
+  for (const {
+    requestId,
+    ticketId,
+    status,
+    category,
+    submitTime,
+    ttsId,
+  } of tickets) {
     if (status === 'Closed') continue
     const submitDatetime = new Date(submitTime)
     const metricLabels: any = {
+      ticket: ttsId,
       requestNumber: requestId,
       ticketNumber: ticketId || 'none',
       category: category || 'none',

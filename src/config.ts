@@ -132,3 +132,10 @@ export const ONLINE_TICKET_METRICS_FILE =
 export const ONLINE_TICKET_METRICS_FILE_TEMP =
   process.env.ONLINE_TICKET_METRICS_FILE_TEMP ||
   './data/online-ticket-metrics.txt.tmp'
+
+export const INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE =
+  process.env.INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE ||
+  './data/incomplete-subscriber-data-metrics.txt'
+export const INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE_TEMP =
+  process.env.INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE_TEMP ||
+  './data/incomplete-subscriber-data-metrics.txt.tmp'

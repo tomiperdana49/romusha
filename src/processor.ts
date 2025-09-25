@@ -21,6 +21,7 @@ import {
   syncTickets as syncFbstarTickets,
 } from './jobs/fbstar'
 import { exportOnlinePppoeTicketMetrics } from './jobs/ticket'
+import { exportIncompleteSubscriberDataMetrics } from './jobs/subscriber'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')
@@ -28,6 +29,9 @@ export async function processJob(message: JsMsg, nc: NatsConnection) {
   logger.info(`executing job: ${jobName}`)
 
   switch (jobName) {
+    case 'exportIncompleteSubscriberDataMetrics':
+      exportIncompleteSubscriberDataMetrics()
+      break
     case 'exportOnlinePppoeTicketMetrics':
       exportOnlinePppoeTicketMetrics()
       break

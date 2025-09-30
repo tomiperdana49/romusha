@@ -48,6 +48,8 @@ export async function autocloseAssignedTicket() {
     } = ticket
     if (proceeded.has(TtsId)) continue
     proceeded.add(TtsId)
+    let DeptId: string;
+    let JobTitle: string;
     const [rows] = await mysqlDb.query(
       `
         SELECT e.EmpId, e.DeptId, jt.Title AS JobTitle
@@ -64,9 +66,30 @@ export async function autocloseAssignedTicket() {
       JobTitle: string
     }[]
 
-    // if (picRows.length === 0) continue
+    if (picRows.length === 0) {
+      const [rowsp] = await mysqlDb.query(
+        `
+          select e.DeptId, e.EmpId, e.DeptId, jt.Title AS JobTitle
+          from TtsUpdate tu
+          LEFT JOIN Employee  e ON tu.EmpId = e.EmpId
+          LEFT JOIN JobTitle jt ON e.JobTitle = jt.Id
+          where TtsId=?
+          order by TtsUpdateId desc limit 1
+          `,
+        [TtsId],
+      )
+      const picRowp = rowsp as {
+        EmpId: string
+        DeptId: string
+        JobTitle: string
+      }[]
+      DeptId = picRowp[0].DeptId;
+      JobTitle = picRowp[0].JobTitle;
+    } else {
+      DeptId = picRows[0].DeptId;
+      JobTitle = picRows[0].JobTitle;
+    }
 
-    const { DeptId, JobTitle } = picRows[0]
     let gracePeriod: number
 
     let resolver = ''

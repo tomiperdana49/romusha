@@ -64,7 +64,7 @@ export async function autocloseAssignedTicket() {
       JobTitle: string
     }[]
 
-    if (picRows.length === 0) continue
+    // if (picRows.length === 0) continue
 
     const { DeptId, JobTitle } = picRows[0]
     let gracePeriod: number

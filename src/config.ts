@@ -139,3 +139,10 @@ export const INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE =
 export const INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE_TEMP =
   process.env.INCOMPLETE_SUBSCRIBER_DATA_METRICS_FILE_TEMP ||
   './data/incomplete-subscriber-data-metrics.txt.tmp'
+
+export const IFORTE_ZABBIX_API_URL =
+  process.env.IFORTE_ZABBIX_API_URL || 'http://localhost/zabbix/api_jsonrpc.php'
+export const IFORTE_ZABBIX_USERNAME =
+  process.env.IFORTE_ZABBIX_USERNAME || 'zabbix'
+export const IFORTE_ZABBIX_PASSWORD =
+  process.env.IFORTE_ZABBIX_PASSWORD || 'zabbix'

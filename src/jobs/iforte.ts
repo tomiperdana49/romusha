@@ -43,7 +43,7 @@ async function getSubscriberGraphs() {
   return ret
 }
 
-export async function syncIforteZabbixSubscriberGraphs() {
+export async function syncZabbixSubscriberGraphs() {
   const graphs = await getSubscriberGraphs()
   const graphPrefix = 's'
   const graphIds = Object.values(graphs).map(

@@ -23,7 +23,7 @@ import {
 } from './jobs/fbstar'
 import { exportOnlinePppoeTicketMetrics } from './jobs/ticket'
 import { exportIncompleteSubscriberDataMetrics } from './jobs/subscriber'
-import { syncIforteZabbixSubscriberGraphs } from './jobs/iforte'
+import { syncZabbixSubscriberGraphs as syncIforteZabbixSubscriberGraphs } from './jobs/iforte'
 
 export async function processJob(message: JsMsg, nc: NatsConnection) {
   const subjectParts = message.subject.split('.')

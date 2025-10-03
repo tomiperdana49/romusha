@@ -146,3 +146,10 @@ export const IFORTE_ZABBIX_USERNAME =
   process.env.IFORTE_ZABBIX_USERNAME || 'zabbix'
 export const IFORTE_ZABBIX_PASSWORD =
   process.env.IFORTE_ZABBIX_PASSWORD || 'zabbix'
+
+export const FBSTAR_DOWN_SUBSCRIBER_ALERT_URL =
+  process.env.FBSTAR_DOWN_SUBSCRIBER_ALERT_URL ||
+  'http://localhost:9093/api/v2/alerts/groups?filter=alertname%3D%22down%22&filter=group%3D%22fttx%22&filter=link%3d%22fs%22&silenced=true&inhibited=false&active=true'
+export const FBSTAR_DOWN_SUBSCRIBER_ALERT_LOOKBACK_HOURS = Number(
+  process.env.FBSTAR_DOWN_SUBSCRIBER_ALERT_LOOKBACK_HOURS || 48,
+)

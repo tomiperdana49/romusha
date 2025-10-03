@@ -1,10 +1,13 @@
 import axios from 'axios'
 import Hashids from 'hashids'
+import logger from '../logger'
 import { pool } from '../nis.mysql'
 import { sendWaNotif } from '../nusawa'
 import {
   FBSTAR_API_PASSWORD,
   FBSTAR_API_USERNAME,
+  FBSTAR_DOWN_SUBSCRIBER_ALERT_LOOKBACK_HOURS,
+  FBSTAR_DOWN_SUBSCRIBER_ALERT_URL,
   FBSTAR_TICKET_API_URL,
   FBSTAR_TICKET_METRICS_FILE,
   FBSTAR_TICKET_METRICS_FILE_TEMP,
@@ -16,11 +19,98 @@ import {
 } from '../config'
 import { writeMetricsFile } from '../metrics'
 
+type AlertLabel = {
+  host: string
+  ip: string
+  csid: string
+}
+
+type Alert = {
+  startsAt: Date
+  labels: AlertLabel
+}
+
+type AlertGroup = {
+  alerts: Alert[]
+}
+
 const hashids = new Hashids(
   TICKET_ID_ENCODED_SALT,
   TICKET_ID_ENCODED_LENGTH,
   TICKET_ID_ENCODED_CHARS,
 )
+
+async function getRecentDownSubscriberAlerts() {
+  const url = FBSTAR_DOWN_SUBSCRIBER_ALERT_URL
+  try {
+    const { data } = await axios.get(url)
+
+    const cutoff = new Date()
+    cutoff.setHours(
+      cutoff.getHours() - FBSTAR_DOWN_SUBSCRIBER_ALERT_LOOKBACK_HOURS,
+    )
+
+    const results: AlertLabel[] = []
+    data.forEach((group: AlertGroup) => {
+      group.alerts.forEach((alert: Alert) => {
+        const startsAt = new Date(alert.startsAt)
+        if (startsAt >= cutoff) {
+          results.push({
+            host: alert.labels.host,
+            ip: alert.labels.ip,
+            csid: alert.labels.csid,
+          })
+        }
+      })
+    })
+    return results
+  } catch (err: any) {
+    logger.error('Error fetching alerts:', err.message)
+    return []
+  }
+}
+
+async function checkOfflineSubscribersFromAlerts(alerts: AlertLabel[]) {
+  const ips = alerts.map((e) => e.ip).filter(Boolean)
+  if (ips.length === 0) {
+    logger.log('No recent alerts. Nothing to query.')
+    return []
+  }
+
+  const batchSize = 64
+  const lookbackMinutes = 10
+  const cutoff = Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+    .format(new Date(Date.now() - lookbackMinutes * 60 * 1000))
+    .replace(',', '')
+
+  const onlineIps: string[] = []
+  for (let i = 0; i < ips.length; i += batchSize) {
+    const ipsPart = ips.slice(i, i + batchSize)
+    const holder = ipsPart.map(() => '?').join(',')
+    const sql = [
+      'SELECT ip_address FROM pppoe_last_seen',
+      'WHERE last_seen > ?',
+      `AND ip_address IN (${holder})`,
+    ].join(' ')
+
+    const [rows] = (await pool.execute(sql, [cutoff, ...ipsPart])) as any[]
+    for (const { ip_address: ip } of rows) {
+      onlineIps.push(ip)
+    }
+  }
+
+  return alerts.filter((e) => {
+    return !onlineIps.includes(e.ip)
+  })
+}
 
 async function getToken() {
   try {
@@ -38,7 +128,7 @@ async function getToken() {
     )
     return response.data.token
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
 }
 
@@ -110,9 +200,9 @@ export async function syncTickets() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Axios error:', error.response?.data || error.message)
+        logger.error('Axios error:', error.response?.data || error.message)
       } else {
-        console.error('Unexpected error:', error)
+        logger.error('Unexpected error:', error)
       }
     }
     const labelsParts = []
@@ -143,7 +233,7 @@ async function getAllActiveTickets() {
     const [rows] = await pool.execute(sql)
     return rows
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
 }
 
@@ -198,7 +288,7 @@ export async function notifyAllOverdueTickets(
           )
         })
       } catch (error) {
-        console.error(error)
+        logger.error(error)
       }
     },
   )
@@ -239,11 +329,40 @@ export async function notifyTicketDetail(requestId: string, pic: string) {
         messages.push(`- ${formattedTime}, ${status} - ${picDept} ${picPerson}`)
       })
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
   if (!messages) return
   await sendWaNotif(pic, messages.join('\n'))
+}
+
+export async function updateOfflineSubscribers() {
+  const alerts = await getRecentDownSubscriberAlerts()
+  const offlineSubscribers = await checkOfflineSubscribersFromAlerts(alerts)
+
+  const now = Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+    .format(new Date())
+    .replace(',', '')
+
+  for (const { csid } of offlineSubscribers) {
+    const sql = [
+      'REPLACE INTO fbstar_offline_subscriber',
+      `SET subscriber_id = ?, offline_check_time = ?`,
+    ].join(' ')
+    try {
+      await pool.execute(sql, [csid, now])
+    } catch (error: any) {
+      logger.error(error)
+    }
+  }
 }

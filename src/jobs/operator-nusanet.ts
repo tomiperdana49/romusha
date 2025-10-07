@@ -17,7 +17,7 @@ export async function syncDataCgsToDba() {
                 AND cstl.foVendorId = 2
             GROUP BY
                 cs.custServId, cs.CustStatus, cstl.foVendorId, cstl.id
-            ORDER BY cs.custServId limit 1
+            ORDER BY cs.custServId
         `,
   )
   await mysqlDbaIs5.query('DELETE FROM cgs')

@@ -5,8 +5,8 @@ export async function syncDataCgsToDba() {
     `
             SELECT
                 cs.custServId,
-                MAX(CASE WHEN cstc.attribute = 'Vendor CID' THEN cstc.value END) AS 'vendorCid',
-                MAX(CASE WHEN cstc.attribute = 'ONU IP'     THEN cstc.value END) AS 'onuIp'
+                MAX(CASE WHEN cstc.attribute = 'ONU IP'     THEN cstc.value END) AS 'onuIp',
+                MAX(CASE WHEN cstc.attribute = 'Vendor CID' THEN cstc.value END) AS 'vendorCid'
             FROM Customer c
             LEFT JOIN CustomerServices cs ON c.CustId = cs.CustId
             LEFT JOIN CustomerServiceTechnicalLink cstl ON cs.custServId = cstl.custServId
@@ -22,7 +22,10 @@ export async function syncDataCgsToDba() {
   )
   await mysqlDbaIs5.query('DELETE FROM cgs')
   for (const cgs of dataOperatorCgs as any[]) {
-    const { custServId, vendorCid, onuIp } = cgs
+    let { custServId, onuIp, vendorCid } = cgs
+
+    onuIp = onuIp && onuIp.trim() !== '' ? onuIp : null
+    vendorCid = vendorCid && vendorCid.trim() !== '' ? vendorCid : null
 
     try {
       const [insRes] = await mysqlDbaIs5.query(
